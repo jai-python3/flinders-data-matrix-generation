@@ -84,22 +84,40 @@ def get_column_unique_values_lookup(column_name_to_letter_lookup: dict, sheet_na
                 cell_value = str(cell.value)
                 cell_value = cell_value.strip() # remove surrounding whitespace
 
-                if cell_value == '':
+                if cell_value is None or cell_value == 'None' or cell_value == '':
                     continue
+
+                if sheet_name == 'DR' and column_name == 'Disease Type':
+                    if sheet_name in CONFIG['qualified_disease_type_lookup']:
+                        if cell_value not in CONFIG['qualified_disease_type_lookup'][sheet_name]:
+                            if cell_value == 'Type 1':
+                                cell_value = 'Type1'
+                                logging.info(f"Changed value to '{cell_value}'")
+                            else:
+                                logging.warning(f"Will ignore unqualified value '{cell_value}' in worksheet '{sheet_name}' column '{column_name}' row '{r_ctr}'")
+                                continue
 
                 # logging.info(f"Found column value '{cell_value}'")
                 if cell_value not in column_unique_values_lookup[column_name]:
                     column_unique_values_lookup[column_name][cell_value] = 0
                 column_unique_values_lookup[column_name][cell_value] += 1
 
-            unique_count = 0
-            unique_list = []
-            for unique_value in column_unique_values_lookup[column_name]:
-                unique_count += 1
-                unique_list.append(str(unique_value))
-            logging.info(f"Found the following '{unique_count}' unique values for categorical column '{column_name}': {','.join(unique_list)}")
-
+            report_unique_column_values(column_unique_values_lookup, sheet_name, column_name)
+            
     return column_unique_values_lookup
+
+def report_unique_column_values(column_unique_values_lookup: dict, sheet_name: str, column_name: str) -> None:
+    """Report to the log file all the unique values found in a particular sheet for a specific column
+    :param column_unique_values_lookup: {dict}
+    :param sheet_name: {str}
+    :param column_name: {str}
+    """
+    unique_count = 0
+    unique_list = []
+    for unique_value in column_unique_values_lookup[column_name]:
+        unique_count += 1
+        unique_list.append(str(unique_value))
+    logging.info(f"Found the following '{unique_count}' unique values for categorical column '{column_name}': {','.join(unique_list)}")
 
 
 def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
@@ -318,6 +336,16 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
 
                         cell_value = str(cell_value) #  Convert to a string
                         cell_value = cell_value.strip() #  Remove surrounding whitespace
+
+                        if sheet_name == 'DR' and column_name == 'Disease Type':
+                            if sheet_name in CONFIG['qualified_disease_type_lookup']:
+                                if cell_value not in CONFIG['qualified_disease_type_lookup'][sheet_name]:
+                                    if cell_value == 'Type 1':
+                                        cell_value = 'Type1'
+                                        logging.info(f"Changed value to '{cell_value}'")
+                                    else:
+                                        logging.warning(f"Will ignore unqualified value '{cell_value}' in worksheet '{sheet_name}' column '{column_name}' row '{row_ctr}'")
+                                        continue
 
                         if column_name.lower() == 'diagnosis' and SPLIT_DIAGNOSIS:
                             for unique_value in column_unique_values_lookup[column_name]:

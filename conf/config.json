@@ -27,6 +27,14 @@
             "Ancestry"
         ]
     },
+    "qualified_disease_type_lookup": {
+        "DR": [
+            "NA",
+            "Type1",
+            "Type2-IDDM",
+            "Type2-NIDDM"
+        ]
+    },
     "worksheet_name_to_qualified_column_name_list": {
         "Glaucoma": [
             "Sample_ID",
