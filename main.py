@@ -120,6 +120,33 @@ def report_unique_column_values(column_unique_values_lookup: dict, sheet_name: s
     logging.info(f"Found the following '{unique_count}' unique values for categorical column '{column_name}': {','.join(unique_list)}")
 
 
+def process_header_row(row, column_name_to_letter_lookup, sheet_name, worksheet, column_name_to_index_lookup, index_to_column_name_lookup, column_letter_to_column_name_lookup) -> dict:
+    for i, cell in enumerate(row):
+        column_name = cell.value
+        if column_name is not None:
+            if column_name in CONFIG['ignore_column_lookup'][sheet_name]:
+                logging.info(f"Ignoring column '{column_name}' in worksheet '{sheet_name}'")
+                continue
+
+            if column_name in CONFIG['worksheet_name_to_qualified_column_name_list'][sheet_name]:
+                column_name_to_index_lookup[column_name] = i
+                column_name_to_letter_lookup[column_name] = cell.column_letter
+                index_to_column_name_lookup[i] = column_name
+                column_letter_to_column_name_lookup[cell.column_letter] = column_name
+                logging.info(f"Found column name '{column_name} in column '{cell.column_letter}'")
+            # print(f"\"{cell.value}\",")
+            else:
+                msg = f"Encountered unqualified column name '{column_name}' for worksheet '{sheet_name}'"
+                print_red(msg)
+                logging.fatal(msg)
+                sys.exit(1)
+        else:
+            logging.info(f"Ignoring column '{cell.column_letter}' since it has no value ")
+    
+    # Get unique values for all categorial columns
+    return get_column_unique_values_lookup(column_name_to_letter_lookup, sheet_name, worksheet)
+
+
 def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
     """Process the Glaucoma worksheet
     : sheet_name {str}: The name of the worksheet
@@ -143,29 +170,15 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
 
         if row_ctr == 1 and CONFIG['worksheet_name_to_has_header_row'][sheet_name]:
             logging.info(f"Found header row in row '{row_ctr}' - will process now")
-            for i, cell in enumerate(row):
-                column_name = cell.value
-                if column_name is not None:
-                    if column_name in CONFIG['ignore_column_lookup'][sheet_name]:
-                        logging.info(f"Ignoring column '{column_name}' in worksheet '{sheet_name}'")
-                        continue
-
-                    if column_name in CONFIG['worksheet_name_to_qualified_column_name_list'][sheet_name]:
-                        column_name_to_index_lookup[column_name] = i
-                        column_name_to_letter_lookup[column_name] = cell.column_letter
-                        index_to_column_name_lookup[i] = column_name
-                        column_letter_to_column_name_lookup[cell.column_letter] = column_name
-                        logging.info(f"Found column name '{column_name} in column '{cell.column_letter}'")
-                    # print(f"\"{cell.value}\",")
-                    else:
-                        msg = f"Encountered unqualified column name '{column_name}' for worksheet '{sheet_name}'"
-                        print_red(msg)
-                        logging.fatal(msg)
-                        sys.exit(1)
-                else:
-                    logging.info(f"Ignoring column '{cell.column_letter}' since it has no value ")
-            # Get unique values for all categorial columns
-            column_unique_values_lookup = get_column_unique_values_lookup(column_name_to_letter_lookup, sheet_name, worksheet)
+            column_unique_values_lookup = process_header_row(
+                row, 
+                column_name_to_letter_lookup, 
+                sheet_name, 
+                worksheet,
+                column_name_to_index_lookup, 
+                index_to_column_name_lookup, 
+                column_letter_to_column_name_lookup
+            )
 
 
         else:
@@ -472,6 +485,7 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
     generate_quantitative_matrix(quantitative_id_lookup, sheet_name, f"{os.path.join(outdir, sheet_name.lower().replace(' ', '_'))}_quantitative.txt")
 
     print(f"Processed '{row_ctr}' rows in worksheet '{sheet_name}'")
+
 
 def generate_binary_matrix(binary_id_lookup: dict, sheet_name: str, outfile: str) -> None:
     """Generate the binary matrix for this worksheet
