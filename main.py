@@ -77,7 +77,6 @@ def process_diagnosis(
 
 def process_yes_no_column(
     column_name: str,
-    sheet_name: str,
     current_sample_id: str,
     cell_value,
     binary_id_lookup: dict,
@@ -792,7 +791,6 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                     ):
                         process_yes_no_column(
                             column_name,
-                            sheet_name,
                             current_sample_id,
                             cell_value,
                             binary_id_lookup,
