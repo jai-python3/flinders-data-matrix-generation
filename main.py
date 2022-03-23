@@ -32,7 +32,7 @@ MATRIX_GENDER_NA = 0
 
 
 SPLIT_DIAGNOSIS = False
-
+SPLIT_CONTROL_CASE = False
 
 DEFAULT_OUTDIR = os.path.join(
     '/tmp/',
@@ -222,29 +222,56 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                         quantitative_id_lookup[current_sample_id] = {}
 
                 elif column_name == 'Control/Case' and sheet_name == 'DR':
+                    
                     cell_value = str(cell_value) #  Convert to a string
                     cell_value = cell_value.strip() #  Remove surrounding whitespace
-                    logging.error(f"Found control/case '{cell_value}'")
-                    case_control = None
-                    if cell_value == '0':
-                        # control
-                        case_control = MATRIX_CONTROL_VALUE
-                    elif cell_value == '1':
-                        # case
-                        case_control = MATRIX_CASE_VALUE
-                    elif cell_value == '9':
-                        # NA
-                        case_control = MATRIX_NA_VALUE
+
+                    if SPLIT_CONTROL_CASE:
+                        
+                        control_instance = MATRIX_NA_VALUE
+                        case_instance = MATRIX_NA_VALUE
+
+                        if cell_value == '0':
+                            control_instance = MATRIX_YES_VALUE
+                            case_instance = MATRIX_NO_VALUE
+                        elif cell_value == '1':
+                            case_instance = MATRIX_YES_VALUE
+                            control_instance = MATRIX_NO_VALUE
+                        elif cell_value == '9':
+                            case_instance = MATRIX_NA_VALUE
+                            control_instance = MATRIX_NA_VALUE
+                        else:
+                            if column_name in CONFIG['blank_value_allowed'][sheet_name] and CONFIG['blank_value_allowed'][sheet_name][column_name] == True:
+                                continue
+                            else:
+                                msg = f"Unexpected value for column '{column_name}' '{cell_value}' (processing Sample_ID '{current_sample_id}' at row '{row_ctr}')"
+                                print_red(msg)
+                                logging.fatal(msg)
+                                sys.exit(1)
+
+                        binary_id_lookup[current_sample_id]['control'] = control_instance
+                        binary_id_lookup[current_sample_id]['case'] = case_instance
                     else:
-                        # blank?
-                        if column_name in CONFIG['blank_value_allowed'][sheet_name] and CONFIG['blank_value_allowed'][sheet_name][column_name] == True:
+                        case_control = None
+                        if cell_value == '0':
+                            # control
+                            case_control = MATRIX_CONTROL_VALUE
+                        elif cell_value == '1':
+                            # case
+                            case_control = MATRIX_CASE_VALUE
+                        elif cell_value == '9':
+                            # NA
                             case_control = MATRIX_NA_VALUE
                         else:
-                            msg = f"Found blank value for column '{column_name}' at row '{row_ctr}' in worksheet '{sheet_name}'"
-                            print_red(msg)
-                            logging.fatal(msg)
-                            sys.exit(1)
-                    binary_id_lookup[current_sample_id][column_name] = case_control
+                            # blank?
+                            if column_name in CONFIG['blank_value_allowed'][sheet_name] and CONFIG['blank_value_allowed'][sheet_name][column_name] == True:
+                                case_control = MATRIX_NA_VALUE
+                            else:
+                                msg = f"Found blank value for column '{column_name}' at row '{row_ctr}' in worksheet '{sheet_name}'"
+                                print_red(msg)
+                                logging.fatal(msg)
+                                sys.exit(1)
+                        binary_id_lookup[current_sample_id][column_name] = case_control
 
                 elif (SPLIT_DIAGNOSIS == False and ((sheet_name == 'Glaucoma' and column_name == 'Glaucoma.diagnosis') or (sheet_name == 'AMD' and column_name == 'Diagnosis'))):
                     # Note from discussion with Kavita 2022-03-22
@@ -334,34 +361,6 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                     binary_id_lookup[current_sample_id]['high_tension_glaucoma'] = high_tension_glaucoma_instance
                     # print(binary_id_lookup)
                     # sys.exit(1)
-
-                elif sheet_name == 'DR' and column_name == 'Control/Case':
-                    cell_value = str(cell_value) #  Convert to a string
-                    cell_value = cell_value.strip() #  Remove surrounding whitespace
-
-                    control_instance = MATRIX_NA_VALUE
-                    case_instance = MATRIX_NA_VALUE
-
-                    if cell_value == '0':
-                        control_instance = MATRIX_YES_VALUE
-                        case_instance = MATRIX_NO_VALUE
-                    elif cell_value == '1':
-                        case_instance = MATRIX_YES_VALUE
-                        control_instance = MATRIX_NO_VALUE
-                    elif cell_value == '9':
-                        case_instance = MATRIX_NA_VALUE
-                        control_instance = MATRIX_NA_VALUE
-                    else:
-                        if column_name in CONFIG['blank_value_allowed'][sheet_name] and CONFIG['blank_value_allowed'][sheet_name][column_name] == True:
-                            continue
-                        else:
-                            msg = f"Unexpected value for column '{column_name}' '{cell_value}' (processing Sample_ID '{current_sample_id}' at row '{row_ctr}')"
-                            print_red(msg)
-                            logging.fatal(msg)
-                            sys.exit(1)
-
-                    binary_id_lookup[current_sample_id]['control'] = control_instance
-                    binary_id_lookup[current_sample_id]['case'] = case_instance
 
                 else:
 
