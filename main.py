@@ -438,21 +438,6 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                 elif column_name == 'Gender':
                     process_gender(cell_value, binary_id_lookup, current_sample_id)
 
-                # elif column_name == 'Family History':
-                #     cell_value = str(cell_value) #  Convert to a string
-                #     cell_value = cell_value.strip() #  Remove surrounding whitespace
-
-                #     family_history_instance = MATRIX_NA_VALUE
-
-                #     if cell_value.lower() == 'no':
-                #         family_history_instance = MATRIX_NO_VALUE
-                #     elif cell_value.lower() == 'yes' or  cell_value.lower() == '1':
-                #         family_history_instance = MATRIX_YES_VALUE
-                #     else:
-                #         family_history_instance = MATRIX_NA_VALUE
-
-                #     binary_id_lookup[current_sample_id]['family_history'] = family_history_instance
-
                 elif sheet_name == 'Glaucoma' and column_name == 'NTG HTG':
                     process_glaucoma_tension(sheet_name, column_name, cell_value, binary_id_lookup, current_sample_id, row_ctr)
 

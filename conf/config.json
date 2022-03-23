@@ -18,7 +18,8 @@
     },
     "ignore_column_lookup" : {
         "Glaucoma": [
-            "Ancestry"
+            "Ancestry",
+            "Family History"
         ],
         "DR": [
             "Ancestry"
