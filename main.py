@@ -62,7 +62,7 @@ def process_diagnosis(sheet_name: str, column_name: str, cell_value: str, binary
 
     cell_value = str(cell_value) #  Convert to a string
     cell_value = cell_value.strip() #  Remove surrounding whitespace
-    if 'unaffected' in cell_value.lower():                                    
+    if 'unaffected' in cell_value.lower():
         binary_id_lookup[current_sample_id][column_name] = MATRIX_CONTROL_VALUE
     else:
         binary_id_lookup[current_sample_id][column_name] = MATRIX_CASE_VALUE
@@ -149,8 +149,6 @@ def process_glaucoma_tension(sheet_name: str, column_name: str, cell_value, bina
 
     binary_id_lookup[current_sample_id]['normal_tension_glaucoma'] = normal_tension_glaucoma_instance
     binary_id_lookup[current_sample_id]['high_tension_glaucoma'] = high_tension_glaucoma_instance
-    # print(binary_id_lookup)
-    # sys.exit(1)
 
 
 def process_gender(cell_value, binary_id_lookup, current_sample_id) -> None:
@@ -158,8 +156,6 @@ def process_gender(cell_value, binary_id_lookup, current_sample_id) -> None:
     cell_value = str(cell_value) #  Convert to a string
     cell_value = cell_value.strip() #  Remove surrounding whitespace
 
-    # if 'gender' not in binary_id_lookup[current_sample_id]:
-    #     binary_id_lookup[current_sample_id]['gender'] = {}
     instance_gender = MATRIX_GENDER_NA
 
     if cell_value.lower() == 'f' or cell_value.lower() == 'female':
@@ -171,12 +167,12 @@ def process_gender(cell_value, binary_id_lookup, current_sample_id) -> None:
 
     binary_id_lookup[current_sample_id]['gender'] = instance_gender
 
+
 def get_average(value: str) -> float:
     low, high = value.split('-')
     average = (float(high) + float(low)) / 2
     return average
 
-# def parse_glaucoma_worksheet(worksheet) -> None:
 def get_column_unique_values_lookup(column_name_to_letter_lookup: dict, sheet_name: str, worksheet) -> dict:
     """Get all the unique values for categorical columns
     :param column_name_to_letter_lookup: {dict}
@@ -217,14 +213,14 @@ def get_column_unique_values_lookup(column_name_to_letter_lookup: dict, sheet_na
                                 logging.warning(f"Will ignore unqualified value '{cell_value}' in worksheet '{sheet_name}' column '{column_name}' row '{r_ctr}'")
                                 continue
 
-                # logging.info(f"Found column value '{cell_value}'")
                 if cell_value not in column_unique_values_lookup[column_name]:
                     column_unique_values_lookup[column_name][cell_value] = 0
                 column_unique_values_lookup[column_name][cell_value] += 1
 
             report_unique_column_values(column_unique_values_lookup, sheet_name, column_name)
-            
+
     return column_unique_values_lookup
+
 
 def report_unique_column_values(column_unique_values_lookup: dict, sheet_name: str, column_name: str) -> None:
     """Report to the log file all the unique values found in a particular sheet for a specific column
@@ -254,7 +250,6 @@ def process_header_row(row, column_name_to_letter_lookup, sheet_name, worksheet,
                 index_to_column_name_lookup[i] = column_name
                 column_letter_to_column_name_lookup[cell.column_letter] = column_name
                 logging.info(f"Found column name '{column_name} in column '{cell.column_letter}'")
-            # print(f"\"{cell.value}\",")
             else:
                 msg = f"Encountered unqualified column name '{column_name}' for worksheet '{sheet_name}'"
                 print_red(msg)
@@ -262,7 +257,7 @@ def process_header_row(row, column_name_to_letter_lookup, sheet_name, worksheet,
                 sys.exit(1)
         else:
             logging.info(f"Ignoring column '{cell.column_letter}' since it has no value ")
-    
+
     # Get unique values for all categorial columns
     return get_column_unique_values_lookup(column_name_to_letter_lookup, sheet_name, worksheet)
 
@@ -296,12 +291,12 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
         if row_ctr == 1 and CONFIG['worksheet_name_to_has_header_row'][sheet_name]:
             logging.info(f"Found header row in row '{row_ctr}' - will process now")
             column_unique_values_lookup = process_header_row(
-                row, 
-                column_name_to_letter_lookup, 
-                sheet_name, 
+                row,
+                column_name_to_letter_lookup,
+                sheet_name,
                 worksheet,
-                column_name_to_index_lookup, 
-                index_to_column_name_lookup, 
+                column_name_to_index_lookup,
+                index_to_column_name_lookup,
                 column_letter_to_column_name_lookup
             )
 
@@ -311,10 +306,10 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
             current_sample_id = None
 
             for cell in row:
-                
+
                 cell_value = cell.value
                 column_letter = cell.column_letter
-                
+
                 if column_letter not in column_letter_to_column_name_lookup:
                     # TODO: Need to log each unique empty column at least once
                     # logging.warning(f"Encountered a column letter '{column_letter}' not found in t he column_letter_to_column_name_lookup - will skip it")
@@ -331,7 +326,7 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                 elif column_name in CONFIG['ignore_column_lookup'][sheet_name]:
                     logging.info(f"Ignoring column '{column_name}' in worksheet '{sheet_name}'")
                     continue
-                    
+
                 elif column_name == 'Sample_ID':
                     current_sample_id = cell_value
                     if current_sample_id is None or current_sample_id == '':
@@ -346,7 +341,7 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                     if current_sample_id not in quantitative_id_lookup:
                         quantitative_id_lookup[current_sample_id] = {}
 
-                
+
                 elif column_name == 'Retinopathy_OD' and sheet_name == 'DR':
                     retinopathy_od = str(cell_value.strip())
 
@@ -358,14 +353,14 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
 
                 elif column_name == 'Macular Edema_OS' and sheet_name == 'DR':
                     macular_edema_os = str(cell_value.strip())
-                
+
                 elif column_name == 'Control/Case' and sheet_name == 'DR':
-                    
+
                     cell_value = str(cell_value) #  Convert to a string
                     cell_value = cell_value.strip() #  Remove surrounding whitespace
 
                     if SPLIT_CONTROL_CASE:
-                        
+
                         control_instance = MATRIX_NA_VALUE
                         case_instance = MATRIX_NA_VALUE
 
@@ -444,9 +439,9 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                 else:
 
                     if column_name in CONFIG['worksheet_name_to_column_name_to_be_split_list'][sheet_name]:
-                        # Entered section of code where a new column should 
+                        # Entered section of code where a new column should
                         # be established for each unique value in this categorical column
-                        # and all cell values for those new columns in that new row 
+                        # and all cell values for those new columns in that new row
                         # should be set to NO except to for the one that corresponds with the
                         # actual cell value- for that one, the value should be set to YES.
 
@@ -465,7 +460,7 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
 
                         if column_name.lower() == 'diagnosis' and SPLIT_DIAGNOSIS:
                             for unique_value in column_unique_values_lookup[column_name]:
-                                if 'unaffected' in cell_value.lower():                                    
+                                if 'unaffected' in cell_value.lower():
                                     if 'unaffected' in unique_value.lower():
                                         continue
                                     else:
@@ -480,32 +475,11 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                                         if unique_value == cell_value:
                                             binary_id_lookup[current_sample_id][categorical_column_name] = MATRIX_YES_VALUE
 
-
-                                # if unique_value == cell_value:
-                                #     binary_id_lookup[current_sample_id][categorical_column_name] = MATRIX_YES_VALUE
-                                # else:
-                                #     categorical_column_name = f"{column_name}_{unique_value}"
-                                #     binary_id_lookup[current_sample_id][categorical_column_name] = MATRIX_NO_VALUE
-                                #     if unique_value == cell_value:
-                                #         binary_id_lookup[current_sample_id][categorical_column_name] = MATRIX_YES_VALUE
                         elif column_name == 'Disease Type' and sheet_name == 'DR':
                             process_dr_disease_type(current_sample_id, cell_value, column_name, sheet_name, column_unique_values_lookup, binary_id_lookup)
 
-                                # else:
-                                #     if current_sample_id == 'FDR0008':
-                                #         print(f"Found disease type '{cell_value}' with unique column value '{unique_value}'")
-                                #     if unique_value == 'NA':
-                                #         continue
-                                #     else:
-                                #         categorical_column_name = f"{column_name}_{unique_value}"
-                                #         binary_id_lookup[current_sample_id][categorical_column_name] = MATRIX_NO_VALUE
-                                #         if unique_value == cell_value:
-                                #             binary_id_lookup[current_sample_id][categorical_column_name] = MATRIX_YES_VALUE
                         else:
 
-                            # print(f"Processing column name '{column_name}'")
-                            # print(column_unique_values_lookup)
-                            # sys.exit(0)
                             for unique_value in column_unique_values_lookup[column_name]:
                                 categorical_column_name = f"{column_name}_{unique_value}"
                                 binary_id_lookup[current_sample_id][categorical_column_name] = MATRIX_NO_VALUE
@@ -528,7 +502,7 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                                 elif column_name == 'VCDR_RE' or column_name == 'VCDR_LE':
                                     quantitative_id_lookup[current_sample_id]['VCDR_Mean'] = MATRIX_NA_VALUE
                         else:
-                            
+
                             cell_value = cell_value.replace(' ', '') #  remove all whitespace
 
                             quantitative_id_lookup[current_sample_id][final_column_name] = cell_value
@@ -551,7 +525,7 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                                         if '-' in cell_value:
                                             # Need to parse and get mean of the range specified e.g.: 0.8-0.9
                                             current_vcdr_re = get_average(cell_value)
-                                        else:                                        
+                                        else:
                                             current_vcdr_re = float(cell_value)
                                 elif column_name == 'VCDR_LE':
                                     if current_vcdr_re is None:
@@ -577,9 +551,6 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                         print_red(f"Unexpected column '{column_name}' at row '{row_ctr}' in sheet '{sheet_name}'")
                         sys.exit(1)
 
-    # print(binary_id_lookup)
-    # sys.exit(1)
-
     generate_binary_matrix(binary_id_lookup, sheet_name, f"{os.path.join(outdir, sheet_name.lower().replace(' ', '_'))}_binary.txt")
     generate_quantitative_matrix(quantitative_id_lookup, sheet_name, f"{os.path.join(outdir, sheet_name.lower().replace(' ', '_'))}_quantitative.txt")
 
@@ -588,37 +559,34 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
 
 def generate_binary_matrix(binary_id_lookup: dict, sheet_name: str, outfile: str) -> None:
     """Generate the binary matrix for this worksheet
-    :binary_id_lookup {dict}: 
+    :binary_id_lookup {dict}:
     :sheet_name {str}: the worksheet name
     :outfile {str}: the output file path
     """
-    
+
     with open(outfile, 'w') as of:
         header_list = []
         header_list.append('ID')
         ctr = 0
 
         for sample_id in binary_id_lookup:
-            # print(f"Processing sample_id '{sample_id}'")
+
             ctr += 1
             if ctr == 1:
                 for column_name in binary_id_lookup[sample_id]:
                     header_list.append(column_name)
-                header_row_str = "\t".join(header_list) 
+                header_row_str = "\t".join(header_list)
                 of.write(f"{header_row_str}\n")
-                # print(f"header row string: {header_row_str}")
 
             output_list = []
-            # output_list.append(sample_id)
+
             for column_name in header_list:
-                # print(f"Processing column name '{column_name}'")
                 if column_name == 'ID':
                     continue
                 if column_name not in binary_id_lookup[sample_id]:
                     output_list.append(str(MATRIX_NA_VALUE))
                 else:
                     output_list.append(str(binary_id_lookup[sample_id][column_name]))
-            # print(output_list)
 
             output_row_str = "\t".join(output_list)
             of.write(f"{sample_id}\t{output_row_str}\n")
@@ -626,10 +594,10 @@ def generate_binary_matrix(binary_id_lookup: dict, sheet_name: str, outfile: str
         print(f"Wrote '{ctr}' lines to output file '{outfile}'")
         logging.info(f"Wrote '{ctr}' lines to output file '{outfile}'")
 
-    
+
 def generate_quantitative_matrix(quantitative_id_lookup:  dict, sheet_name: str, outfile: str) -> None:
     """Generate the quantitative matrix for this worksheet
-    :quantitative_id_matrix {dict}: 
+    :quantitative_id_matrix {dict}:
     :sheet_name {str}: the worksheet name
     :outfile {str}: the output file path
     """
@@ -643,9 +611,9 @@ def generate_quantitative_matrix(quantitative_id_lookup:  dict, sheet_name: str,
             if ctr == 1:
                 for column_name in quantitative_id_lookup[sample_id]:
                     header_list.append(column_name)
-                header_row_str = "\t".join(header_list) 
+                header_row_str = "\t".join(header_list)
                 of.write(f"{header_row_str}\n")
-            
+
             output_list = []
             output_list.append(sample_id)
             for column_name in header_list:
@@ -655,10 +623,10 @@ def generate_quantitative_matrix(quantitative_id_lookup:  dict, sheet_name: str,
                     output_list.append(str(MATRIX_NA_VALUE))
                 else:
                     output_list.append(str(quantitative_id_lookup[sample_id][column_name]))
-            
+
             output_row_str = "\t".join(output_list)
             of.write(f"{output_row_str}\n")
-        
+
         print(f"Wrote '{ctr}' lines to output file '{outfile}'")
         logging.info(f"Wrote '{ctr}' lines to output file '{outfile}'")
 
@@ -777,9 +745,6 @@ def main(verbose: bool, outdir: str, config_file: str, logfile: str, outfile: st
                 logging.warning(f"Will not process worksheet named '{sheet_name}'")
         else:
             logging.warning(f"Found unqualified sheet named '{sheet_name}'")
-        # sheet = workbook[sheet_name]
-        # print(f"The title of the Worksheet is: {sheet.title}")
-        # print(f"Cells that contain data: {sheet.calculate_dimension()}")
 
 if __name__ == "__main__":
     main()
