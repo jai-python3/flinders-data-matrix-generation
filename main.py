@@ -4,25 +4,25 @@ import os
 import pathlib
 import sys
 from datetime import datetime
-
 import click
+from typing import Dict, List, Any, Union
 from colorama import Fore, Style
 from openpyxl import load_workbook
 
 # Reference: CI SOP
 
-MATRIX_YES_VALUE = 2  # case
-MATRIX_NO_VALUE = 1  # control
+MATRIX_YES_VALUE = '2'  # case
+MATRIX_NO_VALUE = '1'  # control
 MATRIX_NA_VALUE = "NA"
 
-MATRIX_CASE_VALUE = 1
-MATRIX_CONTROL_VALUE = 2
-MATRIX_CASE_CONTROL_NA_VALUE = 0
+MATRIX_CASE_VALUE = '1'
+MATRIX_CONTROL_VALUE = '2'
+MATRIX_CASE_CONTROL_NA_VALUE = '0'
 
 
-MATRIX_GENDER_FEMALE = 1
-MATRIX_GENDER_MALE = 2
-MATRIX_GENDER_NA = 0
+MATRIX_GENDER_FEMALE = '1'
+MATRIX_GENDER_MALE = '2'
+MATRIX_GENDER_NA = '0'
 
 
 SPLIT_DIAGNOSIS = False
@@ -40,7 +40,7 @@ DEFAULT_OUTDIR = os.path.join(
 
 DEFAULT_CONFIG_FILE = os.path.dirname(os.path.abspath(__file__)) + "/conf/config.json"
 
-CONFIG = {}
+CONFIG: Dict[str, Any] = {}
 
 LOGGING_FORMAT = "%(levelname)s : %(asctime)s : %(pathname)s : %(lineno)d : %(message)s"
 
@@ -214,7 +214,7 @@ def get_column_unique_values_lookup(
     :param worksheet: {Openpyxl Worksheet}
     """
 
-    column_unique_values_lookup = {}
+    column_unique_values_lookup: Dict[str, Dict[str, int]] = {}
 
     for column_name, column_letter in column_name_to_letter_lookup.items():
         if (
@@ -339,13 +339,13 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
     : sheet_name {str}: The name of the worksheet
     : worksheet {Worksheet}: The openpyxl Worksheet object
     """
-    row_ctr = 0
-    binary_id_lookup = {}
-    quantitative_id_lookup = {}
-    column_name_to_index_lookup = {}
-    column_name_to_letter_lookup = {}
-    column_letter_to_column_name_lookup = {}
-    index_to_column_name_lookup = {}
+    row_ctr = 0    
+    binary_id_lookup: Dict[str, Dict[str, str]] = {}
+    quantitative_id_lookup: Dict[str, Dict[str, Union[int, float, str]]] = {}
+    column_name_to_index_lookup: Dict[str, int] = {}
+    column_name_to_letter_lookup: Dict[str, str] = {}
+    column_letter_to_column_name_lookup: Dict[str, str] = {}
+    index_to_column_name_lookup: Dict[int, str] = {}
 
     for row in worksheet:
 
