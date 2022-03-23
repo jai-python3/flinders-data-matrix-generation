@@ -54,6 +54,24 @@ LOG_LEVEL = logging.INFO
 
 DEFAULT_VERBOSE = True
 
+
+def process_dr_disease_type(current_sample_id: str, cell_value, column_name: str, sheet_name: str, column_unique_values_lookup: dict, binary_id_lookup: dict) -> None:
+
+    for unique_value in column_unique_values_lookup[column_name]:
+        if unique_value == 'NA':
+            continue
+        else:
+            disease_type = MATRIX_NO_VALUE
+            if cell_value == 'NA':
+                disease_type = MATRIX_NA_VALUE
+
+            categorical_column_name = f"{column_name}_{unique_value}"
+            if unique_value == cell_value:
+                binary_id_lookup[current_sample_id][categorical_column_name] = MATRIX_YES_VALUE
+            else:
+                binary_id_lookup[current_sample_id][categorical_column_name] = disease_type
+
+
 def process_glaucoma_tension(sheet_name: str, column_name: str, cell_value, binary_id_lookup: dict, current_sample_id: str, row_ctr: int) -> None:
 
     cell_value = str(cell_value) #  Convert to a string
@@ -461,21 +479,7 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                                 #     if unique_value == cell_value:
                                 #         binary_id_lookup[current_sample_id][categorical_column_name] = MATRIX_YES_VALUE
                         elif column_name == 'Disease Type' and sheet_name == 'DR':
-                            for unique_value in column_unique_values_lookup[column_name]:
-                                if unique_value == 'NA':
-                                    continue
-                                else:
-                                    disease_type = MATRIX_NO_VALUE
-                                    if cell_value == 'NA':
-                                        disease_type = MATRIX_NA_VALUE
-
-                                    categorical_column_name = f"{column_name}_{unique_value}"
-                                    if unique_value == cell_value:
-                                        binary_id_lookup[current_sample_id][categorical_column_name] = MATRIX_YES_VALUE
-                                    else:
-                                        binary_id_lookup[current_sample_id][categorical_column_name] = disease_type
-                            
-
+                            process_dr_disease_type(current_sample_id, cell_value, column_name, sheet_name, column_unique_values_lookup, binary_id_lookup)
 
                                 # else:
                                 #     if current_sample_id == 'FDR0008':
