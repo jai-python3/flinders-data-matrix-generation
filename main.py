@@ -6,8 +6,6 @@ import click
 import pathlib
 import json
 import logging
-import calendar
-import time
 import pathlib
 
 from openpyxl import load_workbook
