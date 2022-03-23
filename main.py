@@ -1,7 +1,6 @@
 import os
 import sys
 import click
-import pathlib
 import json
 import logging
 import pathlib
