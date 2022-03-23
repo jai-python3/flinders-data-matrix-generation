@@ -221,6 +221,31 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                     if current_sample_id not in quantitative_id_lookup:
                         quantitative_id_lookup[current_sample_id] = {}
 
+                elif column_name == 'Control/Case' and sheet_name == 'DR':
+                    cell_value = str(cell_value) #  Convert to a string
+                    cell_value = cell_value.strip() #  Remove surrounding whitespace
+                    logging.error(f"Found control/case '{cell_value}'")
+                    case_control = None
+                    if cell_value == '0':
+                        # control
+                        case_control = MATRIX_CONTROL_VALUE
+                    elif cell_value == '1':
+                        # case
+                        case_control = MATRIX_CASE_VALUE
+                    elif cell_value == '9':
+                        # NA
+                        case_control = MATRIX_NA_VALUE
+                    else:
+                        # blank?
+                        if column_name in CONFIG['blank_value_allowed'][sheet_name] and CONFIG['blank_value_allowed'][sheet_name][column_name] == True:
+                            case_control = MATRIX_NA_VALUE
+                        else:
+                            msg = f"Found blank value for column '{column_name}' at row '{row_ctr}' in worksheet '{sheet_name}'"
+                            print_red(msg)
+                            logging.fatal(msg)
+                            sys.exit(1)
+                    binary_id_lookup[current_sample_id][column_name] = case_control
+
                 elif (SPLIT_DIAGNOSIS == False and ((sheet_name == 'Glaucoma' and column_name == 'Glaucoma.diagnosis') or (sheet_name == 'AMD' and column_name == 'Diagnosis'))):
                     # Note from discussion with Kavita 2022-03-22
                     # - unaffected is the control
