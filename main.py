@@ -55,6 +55,19 @@ LOG_LEVEL = logging.INFO
 DEFAULT_VERBOSE = True
 
 
+def process_diagnosis(sheet_name: str, column_name: str, cell_value: str, binary_id_lookup: dict, current_sample_id: str) -> None:
+    # Note from discussion with Kavita 2022-03-22
+    # - unaffected is the control
+    # - all others are N/A or 2
+
+    cell_value = str(cell_value) #  Convert to a string
+    cell_value = cell_value.strip() #  Remove surrounding whitespace
+    if 'unaffected' in cell_value.lower():                                    
+        binary_id_lookup[current_sample_id][column_name] = MATRIX_CONTROL_VALUE
+    else:
+        binary_id_lookup[current_sample_id][column_name] = MATRIX_CASE_VALUE
+
+
 def process_yes_no_column(column_name: str, sheet_name: str , current_sample_id: str, cell_value, binary_id_lookup: dict) -> None:
 
     final_column_name = column_name.replace(' ', '_').lower()
@@ -420,16 +433,7 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                         binary_id_lookup[current_sample_id][column_name] = case_control
 
                 elif (SPLIT_DIAGNOSIS == False and ((sheet_name == 'Glaucoma' and column_name == 'Glaucoma.diagnosis') or (sheet_name == 'AMD' and column_name == 'Diagnosis'))):
-                    # Note from discussion with Kavita 2022-03-22
-                    # - unaffected is the control
-                    # - all others are N/A or 2
-
-                    cell_value = str(cell_value) #  Convert to a string
-                    cell_value = cell_value.strip() #  Remove surrounding whitespace
-                    if 'unaffected' in cell_value.lower():                                    
-                        binary_id_lookup[current_sample_id][column_name] = MATRIX_CONTROL_VALUE
-                    else:
-                        binary_id_lookup[current_sample_id][column_name] = MATRIX_CASE_VALUE
+                    process_diagnosis(sheet_name, column_name, cell_value, binary_id_lookup, current_sample_id)
 
                 elif column_name == 'Gender':
                     process_gender(cell_value, binary_id_lookup, current_sample_id)
