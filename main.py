@@ -1,14 +1,13 @@
-import os
-import sys
-import click
 import json
 import logging
+import os
 import pathlib
-
-from openpyxl import load_workbook
-
-from colorama import Fore, Style
+import sys
 from datetime import datetime
+
+import click
+from colorama import Fore, Style
+from openpyxl import load_workbook
 
 # Reference: CI SOP
 
