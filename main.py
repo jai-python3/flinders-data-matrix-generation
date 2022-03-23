@@ -267,7 +267,7 @@ def process_header_row(row, column_name_to_letter_lookup, sheet_name, worksheet,
     return get_column_unique_values_lookup(column_name_to_letter_lookup, sheet_name, worksheet)
 
 
-def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
+def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
     """Process the Glaucoma worksheet
     : sheet_name {str}: The name of the worksheet
     : worksheet {Worksheet}: The openpyxl Worksheet object
@@ -772,11 +772,7 @@ def main(verbose: bool, outdir: str, config_file: str, logfile: str, outfile: st
             logging.info(f"Found qualified sheet named '{sheet_name}'")
             if sheet_name in CONFIG['sheets_to_process']:
                 logging.info(f"Will process work sheet '{sheet_name}'")
-                if sheet_name == 'Glaucoma' or sheet_name == 'DR':
-                    process_glaucoma_worksheet(sheet_name, workbook[sheet_name], outdir)
-                    # pass
-                else:
-                    process_glaucoma_worksheet(sheet_name, workbook[sheet_name], outdir)
+                process_worksheet(sheet_name, workbook[sheet_name], outdir)
             else:
                 logging.warning(f"Will not process worksheet named '{sheet_name}'")
         else:
