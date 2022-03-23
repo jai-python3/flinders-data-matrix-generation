@@ -54,6 +54,23 @@ LOG_LEVEL = logging.INFO
 
 DEFAULT_VERBOSE = True
 
+def process_gender(cell_value, binary_id_lookup, current_sample_id) -> None:
+
+    cell_value = str(cell_value) #  Convert to a string
+    cell_value = cell_value.strip() #  Remove surrounding whitespace
+
+    # if 'gender' not in binary_id_lookup[current_sample_id]:
+    #     binary_id_lookup[current_sample_id]['gender'] = {}
+    instance_gender = MATRIX_GENDER_NA
+
+    if cell_value.lower() == 'f' or cell_value.lower() == 'female':
+        instance_gender = MATRIX_GENDER_FEMALE
+    elif cell_value.lower() == 'm' or cell_value.lower() == 'male':
+        instance_gender = MATRIX_GENDER_MALE
+    else:
+        instance_gender = MATRIX_GENDER_NA
+
+    binary_id_lookup[current_sample_id]['gender'] = instance_gender
 
 def get_average(value: str) -> float:
     low, high = value.split('-')
@@ -329,21 +346,7 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                         binary_id_lookup[current_sample_id][column_name] = MATRIX_CASE_VALUE
 
                 elif column_name == 'Gender':
-                    cell_value = str(cell_value) #  Convert to a string
-                    cell_value = cell_value.strip() #  Remove surrounding whitespace
-
-                    # if 'gender' not in binary_id_lookup[current_sample_id]:
-                    #     binary_id_lookup[current_sample_id]['gender'] = {}
-                    instance_gender = MATRIX_GENDER_NA
-
-                    if cell_value.lower() == 'f' or cell_value.lower() == 'female':
-                        instance_gender = MATRIX_GENDER_FEMALE
-                    elif cell_value.lower() == 'm' or cell_value.lower() == 'male':
-                        instance_gender = MATRIX_GENDER_MALE
-                    else:
-                        instance_gender = MATRIX_GENDER_NA
-
-                    binary_id_lookup[current_sample_id]['gender'] = instance_gender
+                    process_gender(cell_value, binary_id_lookup, current_sample_id)
 
                 # elif column_name == 'Family History':
                 #     cell_value = str(cell_value) #  Convert to a string
