@@ -168,7 +168,7 @@ def process_glaucoma_tension(
     else:
         if (
             column_name in CONFIG["blank_value_allowed"][sheet_name]
-            and CONFIG["blank_value_allowed"][sheet_name][column_name] == True
+            and CONFIG["blank_value_allowed"][sheet_name][column_name] is True
         ):
             high_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
             normal_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
@@ -460,7 +460,7 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                                 and CONFIG["blank_value_allowed"][sheet_name][
                                     column_name
                                 ]
-                                == True
+                                is True
                             ):
                                 continue
                             else:
@@ -520,7 +520,7 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                                     and CONFIG["blank_value_allowed"][sheet_name][
                                         column_name
                                     ]
-                                    == True
+                                    is True
                                 ):
                                     case_control = MATRIX_NA_VALUE
                                 else:
@@ -530,7 +530,7 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                                     sys.exit(1)
                         binary_id_lookup[current_sample_id][column_name] = case_control
 
-                elif SPLIT_DIAGNOSIS == False and (
+                elif SPLIT_DIAGNOSIS is False and (
                     (sheet_name == "Glaucoma" and column_name == "Glaucoma.diagnosis")
                     or (sheet_name == "AMD" and column_name == "Diagnosis")
                 ):
