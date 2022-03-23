@@ -64,8 +64,8 @@ def process_diagnosis(
     # - unaffected is the control
     # - all others are N/A or 2
 
-    cell_value = str(cell_value)  #  Convert to a string
-    cell_value = cell_value.strip()  #  Remove surrounding whitespace
+    cell_value = str(cell_value)  # Convert to a string
+    cell_value = cell_value.strip()  # Remove surrounding whitespace
     if "unaffected" in cell_value.lower():
         binary_id_lookup[current_sample_id][column_name] = MATRIX_CONTROL_VALUE
     else:
@@ -82,8 +82,8 @@ def process_yes_no_column(
 
     final_column_name = column_name.replace(" ", "_").lower()
 
-    cell_value = str(cell_value)  #  Convert to a string
-    cell_value = cell_value.strip()  #  Remove surrounding whitespace
+    cell_value = str(cell_value)  # Convert to a string
+    cell_value = cell_value.strip()  # Remove surrounding whitespace
 
     val = MATRIX_NA_VALUE
 
@@ -136,8 +136,8 @@ def process_glaucoma_tension(
     row_ctr: int,
 ) -> None:
 
-    cell_value = str(cell_value)  #  Convert to a string
-    cell_value = cell_value.strip()  #  Remove surrounding whitespace
+    cell_value = str(cell_value)  # Convert to a string
+    cell_value = cell_value.strip()  # Remove surrounding whitespace
 
     normal_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
     high_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
@@ -188,8 +188,8 @@ def process_glaucoma_tension(
 
 def process_gender(cell_value, binary_id_lookup, current_sample_id) -> None:
 
-    cell_value = str(cell_value)  #  Convert to a string
-    cell_value = cell_value.strip()  #  Remove surrounding whitespace
+    cell_value = str(cell_value)  # Convert to a string
+    cell_value = cell_value.strip()  # Remove surrounding whitespace
 
     instance_gender = MATRIX_GENDER_NA
 
@@ -437,8 +437,8 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
 
                 elif column_name == "Control/Case" and sheet_name == "DR":
 
-                    cell_value = str(cell_value)  #  Convert to a string
-                    cell_value = cell_value.strip()  #  Remove surrounding whitespace
+                    cell_value = str(cell_value)  # Convert to a string
+                    cell_value = cell_value.strip()  # Remove surrounding whitespace
 
                     if SPLIT_CONTROL_CASE:
 
@@ -569,10 +569,8 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                         # should be set to NO except to for the one that corresponds with the
                         # actual cell value- for that one, the value should be set to YES.
 
-                        cell_value = str(cell_value)  #  Convert to a string
-                        cell_value = (
-                            cell_value.strip()
-                        )  #  Remove surrounding whitespace
+                        cell_value = str(cell_value)  # Convert to a string
+                        cell_value = cell_value.strip()  # Remove surrounding whitespace
 
                         if column_name == "Disease Type" and sheet_name == "DR":
                             if sheet_name in CONFIG["qualified_disease_type_lookup"]:
@@ -653,10 +651,8 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                         ][sheet_name]
                     ):
 
-                        cell_value = str(cell_value)  #  Convert to a string
-                        cell_value = (
-                            cell_value.strip()
-                        )  #  Remove surrounding whitespace
+                        cell_value = str(cell_value)  # Convert to a string
+                        cell_value = cell_value.strip()  # Remove surrounding whitespace
 
                         # Entered section of code where some quantitative value is to be processed
                         final_column_name = column_name.replace(" ", "_").lower()
@@ -687,7 +683,7 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
 
                             cell_value = cell_value.replace(
                                 " ", ""
-                            )  #  remove all whitespace
+                            )  # remove all whitespace
 
                             quantitative_id_lookup[current_sample_id][
                                 final_column_name
