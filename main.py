@@ -350,7 +350,7 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                         cell_value = str(cell_value) #  Convert to a string
                         cell_value = cell_value.strip() #  Remove surrounding whitespace
 
-                        if sheet_name == 'DR' and column_name == 'Disease Type':
+                        if column_name == 'Disease Type' and sheet_name == 'DR':
                             if sheet_name in CONFIG['qualified_disease_type_lookup']:
                                 if cell_value not in CONFIG['qualified_disease_type_lookup'][sheet_name]:
                                     if cell_value == 'Type 1':
@@ -385,6 +385,33 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                                 #     binary_id_lookup[current_sample_id][categorical_column_name] = MATRIX_NO_VALUE
                                 #     if unique_value == cell_value:
                                 #         binary_id_lookup[current_sample_id][categorical_column_name] = MATRIX_YES_VALUE
+                        elif column_name == 'Disease Type' and sheet_name == 'DR':
+                            for unique_value in column_unique_values_lookup[column_name]:
+                                if unique_value == 'NA':
+                                    continue
+                                else:
+                                    disease_type = MATRIX_NO_VALUE
+                                    if cell_value == 'NA':
+                                        disease_type = MATRIX_NA_VALUE
+
+                                    categorical_column_name = f"{column_name}_{unique_value}"
+                                    if unique_value == cell_value:
+                                        binary_id_lookup[current_sample_id][categorical_column_name] = MATRIX_YES_VALUE
+                                    else:
+                                        binary_id_lookup[current_sample_id][categorical_column_name] = disease_type
+                            
+
+
+                                # else:
+                                #     if current_sample_id == 'FDR0008':
+                                #         print(f"Found disease type '{cell_value}' with unique column value '{unique_value}'")
+                                #     if unique_value == 'NA':
+                                #         continue
+                                #     else:
+                                #         categorical_column_name = f"{column_name}_{unique_value}"
+                                #         binary_id_lookup[current_sample_id][categorical_column_name] = MATRIX_NO_VALUE
+                                #         if unique_value == cell_value:
+                                #             binary_id_lookup[current_sample_id][categorical_column_name] = MATRIX_YES_VALUE
                         else:
 
                             # print(f"Processing column name '{column_name}'")
