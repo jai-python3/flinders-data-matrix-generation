@@ -54,6 +54,53 @@ LOG_LEVEL = logging.INFO
 
 DEFAULT_VERBOSE = True
 
+def process_glaucoma_tension(sheet_name: str, column_name: str, cell_value, binary_id_lookup: dict, current_sample_id: str, row_ctr: int) -> None:
+
+    cell_value = str(cell_value) #  Convert to a string
+    cell_value = cell_value.strip() #  Remove surrounding whitespace
+
+    normal_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
+    high_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
+
+    if cell_value == '0':
+        # Notes from discussion with Kavita 2022-03-21:
+        # - everyone with normal tension: 2 (case)
+        # - everyone with high tension: N/A
+        # - all others unaffected are: 1
+        # - blanks: N/A
+
+        normal_tension_glaucoma_instance = MATRIX_CASE_VALUE
+        high_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
+
+    elif cell_value == '1':
+        # Notes from discussion with Kavita 2022-03-21:
+        # - everyone with high tension: 2 (case)
+        # - everyone with normal tension: N/A
+        # - all others unaffected are: 1
+        # - blanks: N/A
+
+        high_tension_glaucoma_instance = MATRIX_CASE_VALUE
+        normal_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
+
+    elif cell_value == '9':
+        high_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
+        normal_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
+    else:
+        if column_name in CONFIG['blank_value_allowed'][sheet_name] and CONFIG['blank_value_allowed'][sheet_name][column_name] == True:
+            high_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
+            normal_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
+        else:
+            msg = f"Unexpected value for column '{column_name}' '{cell_value}' (processing Sample_ID '{current_sample_id}' at row '{row_ctr}')"
+            print_red(msg)
+            logging.fatal(msg)
+            sys.exit(1)
+
+    binary_id_lookup[current_sample_id]['normal_tension_glaucoma'] = normal_tension_glaucoma_instance
+    binary_id_lookup[current_sample_id]['high_tension_glaucoma'] = high_tension_glaucoma_instance
+    # print(binary_id_lookup)
+    # sys.exit(1)
+
+
 def process_gender(cell_value, binary_id_lookup, current_sample_id) -> None:
 
     cell_value = str(cell_value) #  Convert to a string
@@ -364,49 +411,7 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                 #     binary_id_lookup[current_sample_id]['family_history'] = family_history_instance
 
                 elif sheet_name == 'Glaucoma' and column_name == 'NTG HTG':
-                    cell_value = str(cell_value) #  Convert to a string
-                    cell_value = cell_value.strip() #  Remove surrounding whitespace
-
-                    normal_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
-                    high_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
-
-                    if cell_value == '0':
-                        # Notes from discussion with Kavita 2022-03-21:
-                        # - everyone with normal tension: 2 (case)
-                        # - everyone with high tension: N/A
-                        # - all others unaffected are: 1
-                        # - blanks: N/A
-
-                        normal_tension_glaucoma_instance = MATRIX_CASE_VALUE
-                        high_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
-
-                    elif cell_value == '1':
-                        # Notes from discussion with Kavita 2022-03-21:
-                        # - everyone with high tension: 2 (case)
-                        # - everyone with normal tension: N/A
-                        # - all others unaffected are: 1
-                        # - blanks: N/A
-
-                        high_tension_glaucoma_instance = MATRIX_CASE_VALUE
-                        normal_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
-
-                    elif cell_value == '9':
-                        high_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
-                        normal_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
-                    else:
-                        if column_name in CONFIG['blank_value_allowed'][sheet_name] and CONFIG['blank_value_allowed'][sheet_name][column_name] == True:
-                            high_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
-                            normal_tension_glaucoma_instance = MATRIX_CASE_CONTROL_NA_VALUE
-                        else:
-                            msg = f"Unexpected value for column '{column_name}' '{cell_value}' (processing Sample_ID '{current_sample_id}' at row '{row_ctr}')"
-                            print_red(msg)
-                            logging.fatal(msg)
-                            sys.exit(1)
-
-                    binary_id_lookup[current_sample_id]['normal_tension_glaucoma'] = normal_tension_glaucoma_instance
-                    binary_id_lookup[current_sample_id]['high_tension_glaucoma'] = high_tension_glaucoma_instance
-                    # print(binary_id_lookup)
-                    # sys.exit(1)
+                    process_glaucoma_tension(sheet_name, column_name, cell_value, binary_id_lookup, current_sample_id, row_ctr)
 
                 else:
 
