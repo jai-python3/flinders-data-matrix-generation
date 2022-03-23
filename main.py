@@ -55,6 +55,27 @@ LOG_LEVEL = logging.INFO
 DEFAULT_VERBOSE = True
 
 
+def process_yes_no_column(column_name: str, sheet_name: str , current_sample_id: str, cell_value, binary_id_lookup: dict) -> None:
+
+    final_column_name = column_name.replace(' ', '_').lower()
+
+    cell_value = str(cell_value) #  Convert to a string
+    cell_value = cell_value.strip() #  Remove surrounding whitespace
+
+    val = MATRIX_NA_VALUE
+
+    if cell_value is None or cell_value == 'None' or cell_value == '':
+        val = MATRIX_NA_VALUE
+    elif cell_value.lower() == 'no':
+        val = MATRIX_NO_VALUE
+    elif cell_value.lower() == 'yes' or  cell_value.lower() == '1':
+        val = MATRIX_YES_VALUE
+    else:
+        val = MATRIX_NA_VALUE
+
+    binary_id_lookup[current_sample_id][final_column_name] = val
+
+
 def process_dr_disease_type(current_sample_id: str, cell_value, column_name: str, sheet_name: str, column_unique_values_lookup: dict, binary_id_lookup: dict) -> None:
 
     for unique_value in column_unique_values_lookup[column_name]:
@@ -560,24 +581,7 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
 
 
                     elif column_name in CONFIG['worksheet_name_to_column_name_yes_no'][sheet_name]:
-
-                        final_column_name = column_name.replace(' ', '_').lower()
-
-                        cell_value = str(cell_value) #  Convert to a string
-                        cell_value = cell_value.strip() #  Remove surrounding whitespace
-
-                        val = MATRIX_NA_VALUE
-
-                        if cell_value is None or cell_value == 'None' or cell_value == '':
-                            val = MATRIX_NA_VALUE
-                        elif cell_value.lower() == 'no':
-                            val = MATRIX_NO_VALUE
-                        elif cell_value.lower() == 'yes' or  cell_value.lower() == '1':
-                            val = MATRIX_YES_VALUE
-                        else:
-                            val = MATRIX_NA_VALUE
-
-                        binary_id_lookup[current_sample_id][final_column_name] = val
+                        process_yes_no_column(column_name, sheet_name, current_sample_id, cell_value, binary_id_lookup)
 
                     else:
                         logging.fatal(f"Unexpected column '{column_name}' at row '{row_ctr}' in sheet '{sheet_name}'")
