@@ -32,7 +32,11 @@ MATRIX_GENDER_NA = 0
 
 
 SPLIT_DIAGNOSIS = False
+
 SPLIT_CONTROL_CASE = False
+
+OVERRIDE_CONTROL_CASE = True
+
 
 DEFAULT_OUTDIR = os.path.join(
     '/tmp/',
@@ -166,6 +170,11 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
         current_highest_iop_re = None
         current_vcdr_re = None
 
+        retinopathy_od = None
+        retinopathy_os = None
+        macular_edema_od = None
+        macular_edema_os = None
+
         row_ctr += 1
 
         if row_ctr == 1 and CONFIG['worksheet_name_to_has_header_row'][sheet_name]:
@@ -221,6 +230,19 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                     if current_sample_id not in quantitative_id_lookup:
                         quantitative_id_lookup[current_sample_id] = {}
 
+                
+                elif column_name == 'Retinopathy_OD' and sheet_name == 'DR':
+                    retinopathy_od = str(cell_value.strip())
+
+                elif column_name == 'Retinopathy_OS' and sheet_name == 'DR':
+                    retinopathy_os = str(cell_value.strip())
+
+                elif column_name == 'Macular Edema_OD' and sheet_name == 'DR':
+                    macular_edema_od = str(cell_value.strip())
+
+                elif column_name == 'Macular Edema_OS' and sheet_name == 'DR':
+                    macular_edema_os = str(cell_value.strip())
+                
                 elif column_name == 'Control/Case' and sheet_name == 'DR':
                     
                     cell_value = str(cell_value) #  Convert to a string
@@ -253,24 +275,45 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                         binary_id_lookup[current_sample_id]['case'] = case_instance
                     else:
                         case_control = None
-                        if cell_value == '0':
-                            # control
-                            case_control = MATRIX_CONTROL_VALUE
-                        elif cell_value == '1':
-                            # case
-                            case_control = MATRIX_CASE_VALUE
-                        elif cell_value == '9':
-                            # NA
-                            case_control = MATRIX_NA_VALUE
-                        else:
-                            # blank?
-                            if column_name in CONFIG['blank_value_allowed'][sheet_name] and CONFIG['blank_value_allowed'][sheet_name][column_name] == True:
+
+                        if OVERRIDE_CONTROL_CASE:
+                            # We will override their control/case designation using our own rules
+                            if retinopathy_od == 'No DR' and retinopathy_os == 'No DR' and macular_edema_od == 'No' and macular_edema_os == 'No':
+                                case_control = MATRIX_CONTROL_VALUE
+                            elif retinopathy_od is None or \
+                                retinopathy_od == 'Unknown' or \
+                                retinopathy_od == '' or \
+                                retinopathy_os is None or \
+                                retinopathy_os == 'Unknown' or \
+                                retinopathy_os == '' or \
+                                macular_edema_od is None or \
+                                macular_edema_od == 'Unknown' or \
+                                macular_edema_od == '' or \
+                                macular_edema_os is None or \
+                                macular_edema_os == 'Unknown' or \
+                                macular_edema_os == '':
                                 case_control = MATRIX_NA_VALUE
                             else:
-                                msg = f"Found blank value for column '{column_name}' at row '{row_ctr}' in worksheet '{sheet_name}'"
-                                print_red(msg)
-                                logging.fatal(msg)
-                                sys.exit(1)
+                                case_control = MATRIX_CASE_VALUE
+                        else:
+                            if cell_value == '0':
+                                # control
+                                case_control = MATRIX_CONTROL_VALUE
+                            elif cell_value == '1':
+                                # case
+                                case_control = MATRIX_CASE_VALUE
+                            elif cell_value == '9':
+                                # NA
+                                case_control = MATRIX_NA_VALUE
+                            else:
+                                # blank?
+                                if column_name in CONFIG['blank_value_allowed'][sheet_name] and CONFIG['blank_value_allowed'][sheet_name][column_name] == True:
+                                    case_control = MATRIX_NA_VALUE
+                                else:
+                                    msg = f"Found blank value for column '{column_name}' at row '{row_ctr}' in worksheet '{sheet_name}'"
+                                    print_red(msg)
+                                    logging.fatal(msg)
+                                    sys.exit(1)
                         binary_id_lookup[current_sample_id][column_name] = case_control
 
                 elif (SPLIT_DIAGNOSIS == False and ((sheet_name == 'Glaucoma' and column_name == 'Glaucoma.diagnosis') or (sheet_name == 'AMD' and column_name == 'Diagnosis'))):
