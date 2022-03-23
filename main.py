@@ -51,7 +51,6 @@ DEFAULT_VERBOSE = True
 
 
 def process_diagnosis(
-    sheet_name: str,
     column_name: str,
     cell_value: str,
     binary_id_lookup: dict,
@@ -59,7 +58,6 @@ def process_diagnosis(
 ) -> None:
     """Process the Diagnosis value and store in the binary lookup.
 
-    :param sheet_name: {str}
     :param column_name: {str}
     :param cell_value: {str}
     :param binary_id_lookup: {dict}
@@ -392,7 +390,7 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
     :param worksheet: {Worksheet} The openpyxl Worksheet object
     :param outdir: {str} the output directory
     """
-    row_ctr = 0    
+    row_ctr = 0
     binary_id_lookup: Dict[str, Dict[str, str]] = {}
     quantitative_id_lookup: Dict[str, Dict[str, Union[int, float, str]]] = {}
     column_name_to_index_lookup: Dict[str, int] = {}
@@ -584,7 +582,6 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                     or (sheet_name == "AMD" and column_name == "Diagnosis")
                 ):
                     process_diagnosis(
-                        sheet_name,
                         column_name,
                         cell_value,
                         binary_id_lookup,
