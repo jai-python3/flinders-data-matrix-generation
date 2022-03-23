@@ -19,7 +19,7 @@ from datetime import datetime
 
 MATRIX_YES_VALUE = 2 # case
 MATRIX_NO_VALUE = 1 # control
-MATRIX_NA_VALUE = 0
+MATRIX_NA_VALUE = 'NA'
 
 MATRIX_CASE_VALUE = 1
 MATRIX_CONTROL_VALUE = 2
