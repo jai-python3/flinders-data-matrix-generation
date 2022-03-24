@@ -6,8 +6,9 @@ import os
 import pathlib
 import sys
 from datetime import datetime
+from typing import Any, Dict, List, Union
+
 import click
-from typing import Dict, List, Any, Union
 from colorama import Fore, Style
 from openpyxl import load_workbook
 
