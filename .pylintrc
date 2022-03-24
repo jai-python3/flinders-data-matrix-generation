@@ -1,0 +1,5 @@
+[LOGGING]
+disable=logging-fstring-interpolation
+# The following is no longer supported:
+# logging-format-style=fstr
+# Reference: https://stackoverflow.com/questions/34619790/pylint-message-logging-format-interpolation
