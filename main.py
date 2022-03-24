@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Script for processing the Flinders dataset batch 2."""
 import json
 import logging
