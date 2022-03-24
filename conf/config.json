@@ -1,141 +1,141 @@
 {
-    "qualified_sheet_names": [
-        "Dictionary",
-        "Glaucoma",
-        "DR",
-        "AMD",
-        "Controls"
-    ],
-    "sheets_to_process": [
-        "Glaucoma",
-        "DR",
-        "AMD"
-    ],
-    "worksheet_name_to_has_header_row" : {
-        "Glaucoma": true,
-        "DR": true,
-        "AMD": true
-    },
-    "ignore_column_lookup" : {
-        "Glaucoma": [
-            "Ancestry",
-            "Family History"
-        ],
-        "DR": [
-            "Ancestry"
-        ],
-        "AMD": [
-            "Ancestry"
-        ]
-    },
-    "qualified_disease_type_lookup": {
-        "DR": [
-            "NA",
-            "Type1",
-            "Type2-IDDM",
-            "Type2-NIDDM"
-        ]
-    },
-    "worksheet_name_to_qualified_column_name_list": {
-        "Glaucoma": [
-            "Sample_ID",
-            "Gender",
-            "Ancestry",
-            "Glaucoma.diagnosis",
-            "Family History",
-            "AgeDx",
-            "Age Recruitment",
-            "Highest IOP_RE",
-            "Highest IOP_LE",
-            "Highest IOP",
-            "NTG HTG",
-            "VCDR_RE",
-            "VCDR_LE",
-            "Highest.VCDR"
-        ],
-        "DR": [
-            "Sample_ID",
-            "Gender",
-            "Ancestry",
-            "Age.Recruitment",
-            "Disease Type",
-            "Year of DR development",
-            "BCVA_OD",
-            "BCVA_OS",
-            "Retinopathy_OD",
-            "Retinopathy_OS",
-            "Macular Edema_OD",
-            "Macular Edema_OS",
-            "Control/Case"
-        ],
-        "AMD": [
-            "Sample_ID",
-            "Gender",
-            "Ancestry",
-            "Age.Exam",
-            "Diagnosis"
-        ]
-    },
-    "worksheet_name_to_column_name_yes_no": {
-        "Glaucoma": [
-            "Family History"
-        ],
-        "DR": [
-            "Macular Edema_OD",
-            "Macular Edema_OS"
-        ],
-        "AMD": []
-    },
-    "worksheet_name_to_column_name_to_be_split_list": {
-        "Glaucoma": [
-            "Ancestry",
-            "Glaucoma.diagnosis"
-        ],
-        "DR": [
-            "Ancestry",
-            "Disease Type",
-            "Retinopathy_OD",
-            "Retinopathy_OS"
-        ],
-        "AMD": [
-            "Ancestry",
-            "Diagnosis"
-        ]
-    },
-    "worksheet_name_to_column_name_yes_no_na_list": {
-        "Glaucoma": [
-            "Gender",
-            "Family History"
-        ],
-        "DR": [
-            "Macular Edema_OD",
-            "Macular Edema_OS"
-        ]
-    },
-    "worksheet_name_to_column_name_to_be_quantitative_values_list": {
-        "Glaucoma": [
-            "AgeDx",
-            "Age Recruitment",
-            "Highest IOP_RE",
-            "Highest IOP_LE",
-            "Highest IOP",
-            "VCDR_RE",
-            "VCDR_LE",
-            "Highest.VCDR"
-        ],
-        "DR": [
-            "Age.Recruitment",
-            "Year of DR development",
-            "BCVA_OD",
-            "BCVA_OS"
-        ],
-        "AMD": [
-            "Age.Exam"
-        ]
-    },
-    "blank_value_allowed": {
-        "Glaucoma" : {
-            "NTG HTG": true
-        }
+  "blank_value_allowed": {
+    "Glaucoma": {
+      "NTG HTG": true
     }
+  },
+  "ignore_column_lookup": {
+    "AMD": [
+      "Ancestry"
+    ],
+    "DR": [
+      "Ancestry"
+    ],
+    "Glaucoma": [
+      "Ancestry",
+      "Family History"
+    ]
+  },
+  "qualified_disease_type_lookup": {
+    "DR": [
+      "NA",
+      "Type1",
+      "Type2-IDDM",
+      "Type2-NIDDM"
+    ]
+  },
+  "qualified_sheet_names": [
+    "Dictionary",
+    "Glaucoma",
+    "DR",
+    "AMD",
+    "Controls"
+  ],
+  "sheets_to_process": [
+    "Glaucoma",
+    "DR",
+    "AMD"
+  ],
+  "worksheet_name_to_column_name_to_be_quantitative_values_list": {
+    "AMD": [
+      "Age.Exam"
+    ],
+    "DR": [
+      "Age.Recruitment",
+      "Year of DR development",
+      "BCVA_OD",
+      "BCVA_OS"
+    ],
+    "Glaucoma": [
+      "AgeDx",
+      "Age Recruitment",
+      "Highest IOP_RE",
+      "Highest IOP_LE",
+      "Highest IOP",
+      "VCDR_RE",
+      "VCDR_LE",
+      "Highest.VCDR"
+    ]
+  },
+  "worksheet_name_to_column_name_to_be_split_list": {
+    "AMD": [
+      "Ancestry",
+      "Diagnosis"
+    ],
+    "DR": [
+      "Ancestry",
+      "Disease Type",
+      "Retinopathy_OD",
+      "Retinopathy_OS"
+    ],
+    "Glaucoma": [
+      "Ancestry",
+      "Glaucoma.diagnosis"
+    ]
+  },
+  "worksheet_name_to_column_name_yes_no": {
+    "AMD": [],
+    "DR": [
+      "Macular Edema_OD",
+      "Macular Edema_OS"
+    ],
+    "Glaucoma": [
+      "Family History"
+    ]
+  },
+  "worksheet_name_to_column_name_yes_no_na_list": {
+    "DR": [
+      "Macular Edema_OD",
+      "Macular Edema_OS"
+    ],
+    "Glaucoma": [
+      "Gender",
+      "Family History"
+    ]
+  },
+  "worksheet_name_to_has_header_row": {
+    "AMD": true,
+    "DR": true,
+    "Glaucoma": true
+  },
+  "worksheet_name_to_qualified_column_name_list": {
+    "AMD": [
+      "Sample_ID",
+      "Gender",
+      "Ancestry",
+      "Age.Exam",
+      "Diagnosis"
+    ],
+    "DR": [
+      "Sample_ID",
+      "Gender",
+      "Ancestry",
+      "Age.Recruitment",
+      "Disease Type",
+      "Year of DR development",
+      "BCVA_OD",
+      "BCVA_OS",
+      "Retinopathy_OD",
+      "Retinopathy_OS",
+      "Macular Edema_OD",
+      "Macular Edema_OS",
+      "Control/Case"
+    ],
+    "Glaucoma": [
+      "Sample_ID",
+      "Gender",
+      "Ancestry",
+      "Glaucoma.diagnosis",
+      "Family History",
+      "AgeDx",
+      "Age Recruitment",
+      "Highest IOP_RE",
+      "Highest IOP_LE",
+      "Highest IOP",
+      "NTG HTG",
+      "VCDR_RE",
+      "VCDR_LE",
+      "Highest.VCDR"
+    ]
+  }
 }
