@@ -83,7 +83,8 @@ def process_yes_no_column(
     cell_value,
     binary_id_lookup: dict,
 ) -> None:
-    """Process a column that will have a yes or no value and store it in the binary lookup.
+    """Process a column that will have a yes or no value and store it in the
+    binary lookup.
 
     :param column_name: {str}
     :param sheet_name: {str}
@@ -118,7 +119,8 @@ def process_dr_disease_type(
     column_unique_values_lookup: dict,
     binary_id_lookup: dict,
 ) -> None:
-    """Process the Disease Type column in the DR worksheet and store the value in the binary lookup.
+    """Process the Disease Type column in the DR worksheet and store the value
+    in the binary lookup.
 
     :param current_sample_id: {str}
     :param cell_value: {str}
@@ -154,7 +156,8 @@ def process_glaucoma_tension(
     current_sample_id: str,
     row_ctr: int,
 ) -> None:
-    """Process the normal/high tension column in the Glaucoma worksheet and store the value in the binary lookup.
+    """Process the normal/high tension column in the Glaucoma worksheet and
+    store the value in the binary lookup.
 
     :param sheet_name: {str}
     :param column_name: {str}
@@ -313,7 +316,8 @@ def get_column_unique_values_lookup(
 def report_unique_column_values(
     column_unique_values_lookup: dict, sheet_name: str, column_name: str
 ) -> None:
-    """Report to the log file all the unique values found in a particular sheet for a specific column.
+    """Report to the log file all the unique values found in a particular sheet
+    for a specific column.
 
     :param column_unique_values_lookup: {dict}
     :param sheet_name: {str}
