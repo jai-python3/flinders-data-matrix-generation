@@ -115,7 +115,6 @@ def process_dr_disease_type(
     current_sample_id: str,
     cell_value,
     column_name: str,
-    sheet_name: str,
     column_unique_values_lookup: dict,
     binary_id_lookup: dict,
 ) -> None:
@@ -125,7 +124,6 @@ def process_dr_disease_type(
     :param current_sample_id: {str}
     :param cell_value: {str}
     :param column_name: {str}
-    :param sheet_name: {str}
     :param column_unique_values_lookup: {dict}
     :param binary_id_lookup: {dict}
     """
@@ -306,21 +304,18 @@ def get_column_unique_values_lookup(
                     column_unique_values_lookup[column_name][cell_value] = 0
                 column_unique_values_lookup[column_name][cell_value] += 1
 
-            report_unique_column_values(
-                column_unique_values_lookup, sheet_name, column_name
-            )
+            report_unique_column_values(column_unique_values_lookup, column_name)
 
     return column_unique_values_lookup
 
 
 def report_unique_column_values(
-    column_unique_values_lookup: dict, sheet_name: str, column_name: str
+    column_unique_values_lookup: dict, column_name: str
 ) -> None:
     """Report to the log file all the unique values found in a particular sheet
     for a specific column.
 
     :param column_unique_values_lookup: {dict}
-    :param sheet_name: {str}
     :param column_name: {str}
     """
     unique_count = 0
@@ -674,7 +669,6 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                                 current_sample_id,
                                 cell_value,
                                 column_name,
-                                sheet_name,
                                 column_unique_values_lookup,
                                 binary_id_lookup,
                             )
@@ -813,25 +807,20 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
 
     generate_binary_matrix(
         binary_id_lookup,
-        sheet_name,
         f"{os.path.join(outdir, sheet_name.lower().replace(' ', '_'))}_binary.txt",
     )
     generate_quantitative_matrix(
         quantitative_id_lookup,
-        sheet_name,
         f"{os.path.join(outdir, sheet_name.lower().replace(' ', '_'))}_quantitative.txt",
     )
 
     print(f"Processed '{row_ctr}' rows in worksheet '{sheet_name}'")
 
 
-def generate_binary_matrix(
-    binary_id_lookup: dict, sheet_name: str, outfile: str
-) -> None:
+def generate_binary_matrix(binary_id_lookup: dict, outfile: str) -> None:
     """Generate the binary matrix for this worksheet.
 
     :param binary_id_lookup: {dict}
-    :param sheet_name: {str} the worksheet name
     :param outfile: {str} the output file path
     """
     with open(outfile, "w") as of:
@@ -865,13 +854,10 @@ def generate_binary_matrix(
         logging.info(f"Wrote '{ctr}' lines to output file '{outfile}'")
 
 
-def generate_quantitative_matrix(
-    quantitative_id_lookup: dict, sheet_name: str, outfile: str
-) -> None:
+def generate_quantitative_matrix(quantitative_id_lookup: dict, outfile: str) -> None:
     """Generate the quantitative matrix for this worksheet.
 
     :param quantitative_id_matrix: {dict}
-    :param sheet_name: {str} the worksheet name
     :param outfile: {str} the output file path
     """
     with open(outfile, "w") as of:
@@ -958,14 +944,12 @@ def print_yellow(msg: str = None) -> None:
     help=f"The configuration file for this project - default is '{DEFAULT_CONFIG_FILE}'",
 )
 @click.option("--logfile", help="The log file")
-@click.option("--outfile", help="The output final report file")
 @click.option("--infile", help="The primary input file")
 def main(
     verbose: bool,
     outdir: str,
     config_file: str,
     logfile: str,
-    outfile: str,
     infile: str,
 ):
     """Process command-line arguments and execute main functionality."""
@@ -1040,6 +1024,9 @@ def main(
                 logging.warning(f"Will not process worksheet named '{sheet_name}'")
         else:
             logging.warning(f"Found unqualified sheet named '{sheet_name}'")
+
+    print_green(f"Execution of '{os.path.abspath(__file__)}' completed")
+    sys.exit(0)
 
 
 if __name__ == "__main__":
