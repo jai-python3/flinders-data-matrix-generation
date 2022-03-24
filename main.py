@@ -841,7 +841,9 @@ def generate_binary_matrix(binary_id_lookup: dict, outfile: str) -> None:
             ctr += 1
             if ctr == 1:
                 for column_name in binary_id_lookup[sample_id]:
-                    header_list.append(column_name)
+                    header_list.append(
+                        column_name.lower().replace(" ", "_").replace("-", "_")
+                    )
                 header_row_str = "\t".join(header_list)
                 of.write(f"{header_row_str}\n")
 
@@ -877,7 +879,9 @@ def generate_quantitative_matrix(quantitative_id_lookup: dict, outfile: str) -> 
             ctr += 1
             if ctr == 1:
                 for column_name in quantitative_id_lookup[sample_id]:
-                    header_list.append(column_name)
+                    header_list.append(
+                        column_name.lower().replace(" ", "_").replace("-", "_")
+                    )
                 header_row_str = "\t".join(header_list)
                 of.write(f"{header_row_str}\n")
 
