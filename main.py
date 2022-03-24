@@ -815,20 +815,25 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
 
     generate_binary_matrix(
         binary_id_lookup,
+        sheet_name,
         f"{os.path.join(outdir, sheet_name.lower().replace(' ', '_'))}_binary.txt",
     )
     generate_quantitative_matrix(
         quantitative_id_lookup,
+        sheet_name,
         f"{os.path.join(outdir, sheet_name.lower().replace(' ', '_'))}_quantitative.txt",
     )
 
     print(f"Processed '{row_ctr}' rows in worksheet '{sheet_name}'")
 
 
-def generate_binary_matrix(binary_id_lookup: dict, outfile: str) -> None:
+def generate_binary_matrix(
+    binary_id_lookup: dict, sheet_name: str, outfile: str
+) -> None:
     """Generate the binary matrix for this worksheet.
 
     :param binary_id_lookup: {dict}
+    :param sheet_name: {str}
     :param outfile: {str} the output file path
     """
     with open(outfile, "w") as of:
@@ -841,6 +846,16 @@ def generate_binary_matrix(binary_id_lookup: dict, outfile: str) -> None:
             ctr += 1
             if ctr == 1:
                 for column_name in binary_id_lookup[sample_id]:
+                    logging.error(f"Found column_name '{column_name}'")
+                    if (
+                        column_name
+                        in CONFIG["column_name_conversion_lookup"][sheet_name]
+                    ):
+                        cn = CONFIG["column_name_conversion_lookup"][sheet_name][
+                            column_name
+                        ]
+                        column_name = cn
+
                     header_list.append(
                         column_name.lower().replace(" ", "_").replace("-", "_")
                     )
@@ -864,10 +879,13 @@ def generate_binary_matrix(binary_id_lookup: dict, outfile: str) -> None:
         logging.info(f"Wrote '{ctr}' lines to output file '{outfile}'")
 
 
-def generate_quantitative_matrix(quantitative_id_lookup: dict, outfile: str) -> None:
+def generate_quantitative_matrix(
+    quantitative_id_lookup: dict, sheet_name: str, outfile: str
+) -> None:
     """Generate the quantitative matrix for this worksheet.
 
     :param quantitative_id_matrix: {dict}
+    :param sheet_name: {str}
     :param outfile: {str} the output file path
     """
     with open(outfile, "w") as of:
@@ -879,6 +897,15 @@ def generate_quantitative_matrix(quantitative_id_lookup: dict, outfile: str) -> 
             ctr += 1
             if ctr == 1:
                 for column_name in quantitative_id_lookup[sample_id]:
+                    logging.error(f"Found column_name '{column_name}'")
+                    if (
+                        column_name
+                        in CONFIG["column_name_conversion_lookup"][sheet_name]
+                    ):
+                        cn = CONFIG["column_name_conversion_lookup"][sheet_name][
+                            column_name
+                        ]
+                        column_name = cn
                     header_list.append(
                         column_name.lower().replace(" ", "_").replace("-", "_")
                     )

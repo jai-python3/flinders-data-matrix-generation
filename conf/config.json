@@ -4,6 +4,23 @@
       "NTG HTG": true
     }
   },
+  "column_name_conversion_lookup": {
+    "AMD": {},
+    "DR": {
+      "bcva_od": "bcva_right_eye",
+      "bcva_os": "bcva_left_eye",
+      "macular_edema_od": "macular_edema_right_eye",
+      "macular_edema_os": "macular_edema_left_eye",
+      "retinopathy_od": "retinopathy_right_eye",
+      "retinopathy_os": "retinopathy_left_eye"
+    },
+    "Glaucoma": {
+      "highest_iop_le": "highest_iop_left_eye",
+      "highest_iop_re": "highest_iop_right_eye",
+      "vcdr_le": "vcdr_left_eye",
+      "vcdr_re": "vcdr_right_eye"
+    }
+  },
   "ignore_column_lookup": {
     "AMD": [
       "Ancestry"
