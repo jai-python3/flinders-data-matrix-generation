@@ -5,6 +5,7 @@ import logging
 import os
 import pathlib
 import sys
+import time
 from datetime import datetime
 from typing import Any, Dict, List, Union
 
@@ -13,6 +14,8 @@ from colorama import Fore, Style
 from openpyxl import load_workbook
 
 # Reference: CI SOP
+
+start_time = time.perf_counter()
 
 MATRIX_YES_VALUE = "2"  # case
 MATRIX_NO_VALUE = "1"  # control
@@ -1065,6 +1068,7 @@ def main(
             logging.warning(f"Found unqualified sheet named '{sheet_name}'")
 
     print_green(f"Execution of '{os.path.abspath(__file__)}' completed")
+    print(f"Total run time was '{time.perf_counter() - start_time}' seconds")
     sys.exit(0)
 
 
