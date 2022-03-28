@@ -128,5 +128,11 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# All backed up files
 *.bak
+
+# All Excel files
 *.xlsx
+
+# All profiler files
+*.prof
