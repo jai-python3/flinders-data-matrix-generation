@@ -4,6 +4,7 @@ dead
 flake8
 isort
 mypy
+pre-commit
 pydocstyle
 pylint
 rm_unneeded_f_str
