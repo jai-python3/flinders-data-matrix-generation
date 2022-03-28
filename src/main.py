@@ -63,10 +63,17 @@ def process_diagnosis(
 ) -> None:
     """Process the Diagnosis value and store in the binary lookup.
 
-    :param column_name: {str}
-    :param cell_value: {str}
-    :param binary_id_lookup: {dict}
-    :param current_sample_id: {str}
+    Args:
+        column_name: (str) the column name
+        cell_value: (str) the value for the current cell
+        binary_id_lookup: (dict) the binary lookup
+        current_sample_id: (str) the current sample ID being processed
+
+    Returns:
+        None
+
+    Raises:
+        None
     """
     # Note from discussion with Kavita 2022-03-22
     # - unaffected is the control
@@ -91,11 +98,18 @@ def process_yes_no_column(
     The function will process the columns that are known to contain a Yes or No value.
     The converted value will be stored in the binary lookup.
 
-    :param column_name: {str}
-    :param sheet_name: {str}
-    :param current_sample_id: {str}
-    :param cell_value: {str}
-    :param binary_id_lookup: {dict}
+    Args:
+        column_name: (str) the column name
+        sheet_name: (str) the name of the current worksheet
+        current_sample_id: (str) the current sample ID being processed
+        cell_value: (str) the value for the current cell
+        binary_id_lookup: (dict) the binary lookup
+
+    Returns:
+        None
+
+    Raises:
+        None
     """
     final_column_name = column_name.replace(" ", "_").lower()
 
@@ -128,11 +142,18 @@ def process_dr_disease_type(
     This function will process the Disease Type column in the DR worksheet
     and store the derived value in the binary lookup.
 
-    :param current_sample_id: {str}
-    :param cell_value: {str}
-    :param column_name: {str}
-    :param column_unique_values_lookup: {dict}
-    :param binary_id_lookup: {dict}
+    Args:
+        current_sample_id: (str) the current sample ID being processed
+        cell_value: (str) the value for the current cell
+        column_name: (str) the column name
+        column_unique_values_lookup: (dict) lookup containing unique column values
+        binary_id_lookup: (dict) the binary lookup
+
+    Returns:
+        None
+
+    Raises:
+        None
     """
     for unique_value in column_unique_values_lookup[column_name]:
         if unique_value == "NA":
@@ -166,11 +187,18 @@ def process_glaucoma_tension(
     This function will process the normal/high tension value in the Glaucoma
     worksheet and store the derived value in the binary lookup.
 
-    :param sheet_name: {str}
-    :param column_name: {str}
-    :param cell_value: {str}
-    :param binary_id_lookup: {dict}
-    :param current_sample_id: {str}
+    Args:
+        sheet_name: (str) the name of the worksheet
+        column_name: (str) the column name
+        cell_value: (str) the value for the current cell
+        binary_id_lookup: (dict) the binary lookup
+        current_sample_id: (str) the current sample ID being processed
+
+    Returns:
+        None
+
+    Raises:
+        None
     """
     cell_value = str(cell_value)  # Convert to a string
     cell_value = cell_value.strip()  # Remove surrounding whitespace
@@ -225,9 +253,16 @@ def process_glaucoma_tension(
 def process_gender(cell_value, binary_id_lookup, current_sample_id) -> None:
     """Process the gender column and store the value in the binary lookup.
 
-    :param cell_value: {str}
-    :param binary_id_lookup: {dict}
-    :param current_sample_id: {str}
+    Args:
+        cell_value: (str) the value for the current cell
+        binary_id_lookup: (dict) the binary lookup
+        current_sample_id: (str) the current sample ID being processed
+
+    Returns:
+        None
+
+    Raises:
+        None
     """
     cell_value = str(cell_value)  # Convert to a string
     cell_value = cell_value.strip()  # Remove surrounding whitespace
@@ -247,7 +282,18 @@ def process_gender(cell_value, binary_id_lookup, current_sample_id) -> None:
 def get_average(value: str) -> float:
     """Split the value and calculate the mean for the two derived values.
 
-    :param value: {str}
+    Example value is 6.5-7.8
+    Thus the two values for which the mean should be calculated will be
+    6.5 and 7.8.
+
+    Args:
+        value: (str) the value that should be processed
+
+    Returns:
+        float
+
+    Raises:
+        None
     """
     low, high = value.split("-")
     average = (float(high) + float(low)) / 2
@@ -259,9 +305,16 @@ def get_column_unique_values_lookup(
 ) -> dict:
     """Get all the unique values for categorical columns.
 
-    :param column_name_to_letter_lookup: {dict}
-    :param sheet_name: {str}
-    :param worksheet: {Openpyxl Worksheet}
+    Args:
+        column_name_to_letter_lookup: (dict) lookup with key column name and value being the column letter
+        sheet_name: (str) name of the worksheet
+        worksheet: (Openpyxl Worksheet) the Openpyxl Worksheet object
+
+    Returns:
+        Will return a lookup (dict) containing all the unique column values found in the specific column.
+
+    Raises:
+        None
     """
     column_unique_values_lookup: Dict[str, Dict[str, int]] = {}
 
@@ -326,8 +379,15 @@ def report_unique_column_values(
     This function will print to the log file all of the unique values
     found in a particular sheet for a specific column.
 
-    :param column_unique_values_lookup: {dict}
-    :param column_name: {str}
+    Args:
+        column_unique_values_lookup: (dict) lookup containing all unique values found in a specific column
+        column_name: (str) the column name
+
+    Returns:
+        None
+
+    Raises:
+        None
     """
     unique_count = 0
     unique_list = []
@@ -350,13 +410,19 @@ def process_header_row(
 ) -> dict:
     """Process the header row in the worksheet and return a lookup.
 
-    :param row: {int}
-    :param column_name_to_letter_lookup: {dict}
-    :param sheet_name: {str}
-    :param worksheet: {Worksheet}
-    :param column_name_to_index_lookup: {dict}
-    :param index_to_column_name_lookup: {dict}
-    :param column_letter_to_column_name_lookup: {dict}
+    Args:
+        row: (Openpyxl Row) an instance of the Openpyxl Row class
+        sheet_name: (str) the name of the worksheet
+        worksheet: (Openpyxl Worksheet) the Openpyxl Worksheet object
+        column_name_to_index_lookup: (dict) lookup with key column name and value being the column index
+        index_to_column_name_lookup: (dict) lookup with key being column index and value being
+        column_letter_to_column_name_lookup: (dict) lookup with key being column letter and value being column name
+
+    Returns:
+        A lookup (dict) containing all of the unique values found in the specific column
+
+    Raises:
+        None
     """
     for i, cell in enumerate(row):
         column_name = cell.value
@@ -397,9 +463,16 @@ def process_header_row(
 def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
     """Process the Glaucoma worksheet.
 
-    :param sheet_name: {str} The name of the worksheet
-    :param worksheet: {Worksheet} The openpyxl Worksheet object
-    :param outdir: {str} the output directory
+    Args:
+        sheet_name: (str) the name of the worksheet
+        worksheet: (Openpyxl Worksheet) the Openpyxl Worksheet object
+        outdir: (str) the output directory
+
+    Returns:
+        None
+
+    Raises:
+        None
     """
     row_ctr = 0
     binary_id_lookup: Dict[str, Dict[str, str]] = {}
@@ -835,9 +908,16 @@ def generate_binary_matrix(
 ) -> None:
     """Generate the binary matrix for this worksheet.
 
-    :param binary_id_lookup: {dict}
-    :param sheet_name: {str}
-    :param outfile: {str} the output file path
+    Args:
+        binary_id_lookup: (dict) the binary lookup
+        sheet_name: (str) the name of the worksheet
+        outfile: (str) the output file name
+
+    Returns:
+        None
+
+    Raises:
+        None
     """
     with open(outfile, "w") as of:
         header_list = []
@@ -887,9 +967,16 @@ def generate_quantitative_matrix(
 ) -> None:
     """Generate the quantitative matrix for this worksheet.
 
-    :param quantitative_id_matrix: {dict}
-    :param sheet_name: {str}
-    :param outfile: {str} the output file path
+    Args:
+        quantitative_id_matrix: (dict) the quantitative lookup with key being the current sample ID
+        sheet_name: (str) the name of the worksheet
+        outfile: (str) the output file name
+
+    Returns:
+        None
+
+    Raises:
+        None
     """
     with open(outfile, "w") as of:
         header_list = []
@@ -937,7 +1024,14 @@ def generate_quantitative_matrix(
 def print_red(msg: str = None) -> None:
     """Print message to STDOUT in yellow text.
 
-    :param msg: {str} - the message to be printed
+    Args:
+        msg (str) the message to be printed
+
+    Returns:
+        None
+
+    Raises:
+        None
     """
     if msg is None:
         raise Exception("msg was not defined")
@@ -949,7 +1043,14 @@ def print_red(msg: str = None) -> None:
 def print_green(msg: str = None) -> None:
     """Print message to STDOUT in yellow text.
 
-    :param msg: {str} - the message to be printed
+    Args:
+        msg (str) the message to be printed
+
+    Returns:
+        None
+
+    Raises:
+        None
     """
     if msg is None:
         raise Exception("msg was not defined")
@@ -961,7 +1062,14 @@ def print_green(msg: str = None) -> None:
 def print_yellow(msg: str = None) -> None:
     """Print message to STDOUT in yellow text.
 
-    :param msg: {str} - the message to be printed
+    Args:
+        msg (str) the message to be printed
+
+    Returns:
+        None
+
+    Raises:
+        None
     """
     if msg is None:
         raise Exception("msg was not defined")
