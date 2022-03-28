@@ -44,7 +44,9 @@ DEFAULT_OUTDIR = os.path.join(
     str(datetime.today().strftime("%Y-%m-%d-%H%M%S")),
 )
 
-DEFAULT_CONFIG_FILE = os.path.dirname(os.path.abspath(__file__)) + "/conf/config.json"
+DEFAULT_CONFIG_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "conf/config.json"
+)
 
 CONFIG: Dict[str, Any] = {}
 
