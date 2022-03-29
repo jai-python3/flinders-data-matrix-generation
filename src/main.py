@@ -924,6 +924,10 @@ def generate_binary_matrix(
     with open(outfile, "w") as of:
         header_list = []
         header_list.append("ID")
+
+        header_original_list = []
+        header_original_list.append("ID")
+
         ctr = 0
 
         for sample_id in binary_id_lookup:
@@ -944,12 +948,14 @@ def generate_binary_matrix(
                     header_list.append(
                         column_name.lower().replace(" ", "_").replace("-", "_")
                     )
+                    header_original_list.append(column_name)
+
                 header_row_str = "\t".join(header_list)
                 of.write(f"{header_row_str}\n")
 
             output_list = []
 
-            for column_name in header_list:
+            for column_name in header_original_list:
                 if column_name == "ID":
                     continue
                 if column_name not in binary_id_lookup[sample_id]:
