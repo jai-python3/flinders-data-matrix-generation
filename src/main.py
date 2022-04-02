@@ -2,6 +2,7 @@
 """Script for processing the Flinders dataset batch 2."""
 import json
 import logging
+import logging.handlers
 import os
 import pathlib
 import sys
@@ -50,11 +51,43 @@ DEFAULT_CONFIG_FILE = os.path.join(
 
 CONFIG: Dict[str, Any] = {}
 
-LOGGING_FORMAT = "%(levelname)s : %(asctime)s : %(pathname)s : %(lineno)d : %(message)s"
-
-LOG_LEVEL = logging.INFO
-
 DEFAULT_VERBOSE = True
+
+LOGFILE_MAX_BYTES = 50_000
+LOGFILE_BACKUP_COUNT = 10
+
+# Set the root logger
+logging.basicConfig(
+    format="%(levelname)-7s : %(message)s",
+    level=logging.INFO
+)
+
+logger = logging.getLogger(__name__)
+
+
+def setup_filehandler_logger(logfile: str = None):
+
+    # Create handlers
+    # c_handler = logging.StreamHandler()
+    f_handler = logging.handlers.RotatingFileHandler(
+        filename=logfile,
+        # maxBytes=LOGFILE_MAX_BYTES,
+        # backupCount=LOGFILE_BACKUP_COUNT
+    )
+
+    # c_handler.setLevel(logging.INFO)
+    f_handler.setLevel(logging.INFO)
+
+    # Create formatters and add it to handlers
+    f_format = logging.Formatter("%(levelname)-7s : %(asctime)s : %(pathname)s : L%(lineno)d : %(message)s")
+    # c_format = logging.Formatter("%(levelname)-7s : %(asctime)s : %(message)s")
+
+    # c_handler.setFormatter(c_format)
+    f_handler.setFormatter(f_format)
+
+    # Add handlers to the logger
+    # logger.addHandler(c_handler)
+    logger.addHandler(f_handler)
 
 
 def process_diagnosis(
@@ -241,7 +274,7 @@ def process_glaucoma_tension(
         else:
             msg = f"Unexpected value for column '{column_name}' '{cell_value}' (processing Sample_ID '{current_sample_id}' at row '{row_ctr}')"
             print_red(msg)
-            logging.fatal(msg)
+            logger.fatal(msg)
             sys.exit(1)
 
     binary_id_lookup[current_sample_id][
@@ -325,7 +358,7 @@ def get_column_unique_values_lookup(
             column_name
             in CONFIG["worksheet_name_to_column_name_to_be_split_list"][sheet_name]
         ):
-            logging.info(
+            logger.info(
                 f"Column '{column_name}' is a categorical column that should be split"
             )
             if column_name not in column_unique_values_lookup:
@@ -357,9 +390,9 @@ def get_column_unique_values_lookup(
                         ):
                             if cell_value == "Type 1":
                                 cell_value = "Type1"
-                                logging.info(f"Changed value to '{cell_value}'")
+                                logger.info(f"Changed value to '{cell_value}'")
                             else:
-                                logging.warning(
+                                logger.warning(
                                     f"Will ignore unqualified value '{cell_value}' in worksheet '{sheet_name}' column '{column_name}' row '{r_ctr}'"
                                 )
                                 continue
@@ -396,7 +429,7 @@ def report_unique_column_values(
     for unique_value in column_unique_values_lookup[column_name]:
         unique_count += 1
         unique_list.append(str(unique_value))
-    logging.info(
+    logger.info(
         f"Found the following '{unique_count}' unique values for categorical column '{column_name}': {','.join(unique_list)}"
     )
 
@@ -430,7 +463,7 @@ def process_header_row(
         column_name = cell.value
         if column_name is not None:
             if column_name in CONFIG["ignore_column_lookup"][sheet_name]:
-                logging.info(
+                logger.info(
                     f"Ignoring column '{column_name}' in worksheet '{sheet_name}'"
                 )
                 continue
@@ -443,16 +476,16 @@ def process_header_row(
                 column_name_to_letter_lookup[column_name] = cell.column_letter
                 index_to_column_name_lookup[i] = column_name
                 column_letter_to_column_name_lookup[cell.column_letter] = column_name
-                logging.info(
+                logger.info(
                     f"Found column name '{column_name} in column '{cell.column_letter}'"
                 )
             else:
                 msg = f"Encountered unqualified column name '{column_name}' for worksheet '{sheet_name}'"
                 print_red(msg)
-                logging.fatal(msg)
+                logger.fatal(msg)
                 sys.exit(1)
         else:
-            logging.info(
+            logger.info(
                 f"Ignoring column '{cell.column_letter}' since it has no value "
             )
 
@@ -497,7 +530,7 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
         row_ctr += 1
 
         if row_ctr == 1 and CONFIG["worksheet_name_to_has_header_row"][sheet_name]:
-            logging.info(f"Found header row in row '{row_ctr}' - will process now")
+            logger.info(f"Found header row in row '{row_ctr}' - will process now")
             column_unique_values_lookup = process_header_row(
                 row,
                 column_name_to_letter_lookup,
@@ -519,14 +552,14 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
 
                 if column_letter not in column_letter_to_column_name_lookup:
                     # TODO: Need to log each unique empty column at least once
-                    # logging.warning(f"Encountered a column letter '{column_letter}' not found in t he column_letter_to_column_name_lookup - will skip it")
+                    # logger.warning(f"Encountered a column letter '{column_letter}' not found in t he column_letter_to_column_name_lookup - will skip it")
                     continue
 
                 column_name = column_letter_to_column_name_lookup[column_letter]
                 column_name = column_name.strip()  # remove all surrounding whitespace
 
                 if column_name is None:
-                    logging.error(
+                    logger.error(
                         f"Encountered column with no name at column letter '{column_letter}' in row '{row_ctr}' in worksheet '{sheet_name}'"
                     )
                     print_red(
@@ -535,7 +568,7 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                     sys.exit(1)
 
                 elif column_name in CONFIG["ignore_column_lookup"][sheet_name]:
-                    logging.info(
+                    logger.info(
                         f"Ignoring column '{column_name}' in worksheet '{sheet_name}'"
                     )
                     continue
@@ -543,7 +576,7 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                 elif column_name == "Sample_ID":
                     current_sample_id = cell_value
                     if current_sample_id is None or current_sample_id == "":
-                        logging.warning(
+                        logger.warning(
                             f"Found Sample_ID with no value at row '{row_ctr}' in worksheet '{sheet_name}'"
                         )
                         break
@@ -599,7 +632,7 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                             else:
                                 msg = f"Unexpected value for column '{column_name}' '{cell_value}' (processing Sample_ID '{current_sample_id}' at row '{row_ctr}')"
                                 print_red(msg)
-                                logging.fatal(msg)
+                                logger.fatal(msg)
                                 sys.exit(1)
 
                         binary_id_lookup[current_sample_id][
@@ -659,7 +692,7 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                                 else:
                                     msg = f"Found blank value for column '{column_name}' at row '{row_ctr}' in worksheet '{sheet_name}'"
                                     print_red(msg)
-                                    logging.fatal(msg)
+                                    logger.fatal(msg)
                                     sys.exit(1)
                         binary_id_lookup[current_sample_id][column_name] = case_control
 
@@ -714,9 +747,9 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                                 ):
                                     if cell_value == "Type 1":
                                         cell_value = "Type1"
-                                        logging.info(f"Changed value to '{cell_value}'")
+                                        logger.info(f"Changed value to '{cell_value}'")
                                     else:
-                                        logging.warning(
+                                        logger.warning(
                                             f"Will ignore unqualified value '{cell_value}' in worksheet '{sheet_name}' column '{column_name}' row '{row_ctr}'"
                                         )
                                         continue
@@ -883,7 +916,7 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                         )
 
                     else:
-                        logging.fatal(
+                        logger.fatal(
                             f"Unexpected column '{column_name}' at row '{row_ctr}' in sheet '{sheet_name}'"
                         )
                         print_red(
@@ -902,7 +935,7 @@ def process_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
         f"{os.path.join(outdir, sheet_name.lower().replace(' ', '_'))}_quantitative.txt",
     )
 
-    print(f"Processed '{row_ctr}' rows in worksheet '{sheet_name}'")
+    logger.info(f"Processed '{row_ctr}' rows in worksheet '{sheet_name}'")
 
 
 def generate_binary_matrix(
@@ -967,8 +1000,7 @@ def generate_binary_matrix(
             output_row_str = "\t".join(output_list)
             of.write(f"{sample_id}\t{output_row_str}\n")
 
-        print(f"Wrote '{ctr}' lines to output file '{outfile}'")
-        logging.info(f"Wrote '{ctr}' lines to output file '{outfile}'")
+        logger.info(f"Wrote '{ctr}' lines to output file '{outfile}'")
 
 
 def generate_quantitative_matrix(
@@ -1033,8 +1065,7 @@ def generate_quantitative_matrix(
             output_row_str = "\t".join(output_list)
             of.write(f"{output_row_str}\n")
 
-        print(f"Wrote '{ctr}' lines to output file '{outfile}'")
-        logging.info(f"Wrote '{ctr}' lines to output file '{outfile}'")
+        logger.info(f"Wrote '{ctr}' lines to output file '{outfile}'")
 
 
 def print_red(msg: str = None) -> None:
@@ -1155,44 +1186,48 @@ def main(
             f"--logfile was not specified and therefore was set to '{logfile}'"
         )
 
+
     assert isinstance(logfile, str)
 
-    logging.basicConfig(filename=logfile, format=LOGGING_FORMAT, level=LOG_LEVEL)
+    setup_filehandler_logger(logfile)
 
     if not os.path.isfile(infile):
-        print(f"'{infile}' is not a file")
-        logging.error(f"'{infile}' is not a file")
+        # print(f"'{infile}' is not a file")
+        logger.error(f"'{infile}' is not a file")
         sys.exit(1)
 
     if verbose:
-        print(f"The input file is '{infile}'")
+        # print(f"The input file is '{infile}'")
+        # logger.info(f"The input file is '{infile}'")
+        pass
 
-    logging.info(f"The input file is '{infile}'")
+    logger.info(f"The input file is '{infile}'")
 
     # Read the configuration from the JSON file and
     # load into dictionary.
-    logging.info(f"Loading configuration from '{config_file}'")
+    logger.info(f"Loading configuration from '{config_file}'")
 
     global CONFIG
     CONFIG = json.loads(open(config_file).read())
 
-    logging.info(f"CONFIG: {CONFIG}")
+    logger.info(f"CONFIG: {CONFIG}")
 
     workbook = load_workbook(filename=infile, data_only=True)
     for sheet_name in workbook.sheetnames:
-        logging.info(f"Found sheet name '{sheet_name}'")
+        logger.info(f"Found sheet name '{sheet_name}'")
         if sheet_name in CONFIG["qualified_sheet_names"]:
-            logging.info(f"Found qualified sheet named '{sheet_name}'")
+            logger.info(f"Found qualified sheet named '{sheet_name}'")
             if sheet_name in CONFIG["sheets_to_process"]:
-                logging.info(f"Will process work sheet '{sheet_name}'")
+                logger.info(f"Will process work sheet '{sheet_name}'")
                 process_worksheet(sheet_name, workbook[sheet_name], outdir)
             else:
-                logging.warning(f"Will not process worksheet named '{sheet_name}'")
+                logger.warning(f"Will not process worksheet named '{sheet_name}'")
         else:
-            logging.warning(f"Found unqualified sheet named '{sheet_name}'")
+            logger.warning(f"Found unqualified sheet named '{sheet_name}'")
 
-    print_green(f"Execution of '{os.path.abspath(__file__)}' completed")
-    print(f"Total run time was '{time.perf_counter() - start_time}' seconds")
+
+    logger.info(Fore.GREEN + f"Execution of '{os.path.abspath(__file__)}' completed" + Style.RESET_ALL)
+    logger.info(f"Total run time was '{time.perf_counter() - start_time}' seconds")
     sys.exit(0)
 
 
