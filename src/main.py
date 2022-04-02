@@ -1083,8 +1083,7 @@ def print_red(msg: str = None) -> None:
     if msg is None:
         raise Exception("msg was not defined")
 
-    print(Fore.RED + msg)
-    print(Style.RESET_ALL + "", end="")
+    print(Fore.RED + msg + Style.RESET_ALL)
 
 
 def print_green(msg: str = None) -> None:
@@ -1102,8 +1101,7 @@ def print_green(msg: str = None) -> None:
     if msg is None:
         raise Exception("msg was not defined")
 
-    print(Fore.GREEN + msg)
-    print(Style.RESET_ALL + "", end="")
+    print(Fore.GREEN + msg + Style.RESET_ALL)
 
 
 def print_yellow(msg: str = None) -> None:
@@ -1121,8 +1119,7 @@ def print_yellow(msg: str = None) -> None:
     if msg is None:
         raise Exception("msg was not defined")
 
-    print(Fore.YELLOW + msg)
-    print(Style.RESET_ALL + "", end="")
+    print(Fore.YELLOW + msg + Style.RESET_ALL)
 
 
 @click.command()
