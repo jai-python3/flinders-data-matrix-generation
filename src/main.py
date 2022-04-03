@@ -7,12 +7,16 @@ import os
 import pathlib
 import sys
 import time
+from dotenv import load_dotenv
+
 from datetime import datetime
 from typing import Any, Dict, List, Union
 
 import click
 from colorama import Fore, Style
 from openpyxl import load_workbook
+
+load_dotenv()
 
 # Reference: CI SOP
 
@@ -57,10 +61,7 @@ LOGFILE_MAX_BYTES = 50_000
 LOGFILE_BACKUP_COUNT = 10
 
 # Set the root logger
-logging.basicConfig(
-    format="%(levelname)-7s : %(message)s",
-    level=logging.INFO
-)
+logging.basicConfig(format="%(levelname)-7s : %(message)s", level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +80,9 @@ def setup_filehandler_logger(logfile: str = None):
     f_handler.setLevel(logging.INFO)
 
     # Create formatters and add it to handlers
-    f_format = logging.Formatter("%(levelname)-7s : %(asctime)s : %(pathname)s : L%(lineno)d : %(message)s")
+    f_format = logging.Formatter(
+        "%(levelname)-7s : %(asctime)s : %(pathname)s : L%(lineno)d : %(message)s"
+    )
     # c_format = logging.Formatter("%(levelname)-7s : %(asctime)s : %(message)s")
 
     # c_handler.setFormatter(c_format)
@@ -1159,10 +1162,14 @@ def main(
     assert isinstance(infile, str)
 
     if config_file is None:
-        config_file = DEFAULT_CONFIG_FILE
-        print_yellow(
-            f"--config_file was not specified and therefore was set to '{config_file}'"
-        )
+        config_file = os.getenv("CONFIG_FILE", None)
+        if config_file is None:
+            config_file = DEFAULT_CONFIG_FILE
+            print_yellow(
+                f"--config_file was not specified and therefore was set to '{config_file}'"
+            )
+        else:
+            print_yellow(f"Will load configuration from '{config_file}'")
 
     assert isinstance(config_file, str)
 
@@ -1182,7 +1189,6 @@ def main(
         print_yellow(
             f"--logfile was not specified and therefore was set to '{logfile}'"
         )
-
 
     assert isinstance(logfile, str)
 
@@ -1222,8 +1228,11 @@ def main(
         else:
             logger.warning(f"Found unqualified sheet named '{sheet_name}'")
 
-
-    logger.info(Fore.GREEN + f"Execution of '{os.path.abspath(__file__)}' completed" + Style.RESET_ALL)
+    logger.info(
+        Fore.GREEN
+        + f"Execution of '{os.path.abspath(__file__)}' completed"
+        + Style.RESET_ALL
+    )
     logger.info(f"Total run time was '{time.perf_counter() - start_time}' seconds")
     sys.exit(0)
 
