@@ -1233,6 +1233,8 @@ def main(
         + f"Execution of '{os.path.abspath(__file__)}' completed"
         + Style.RESET_ALL
     )
+
+    logger.info(f"The log file is '{logfile}'")
     logger.info(f"Total run time was '{time.perf_counter() - start_time}' seconds")
     sys.exit(0)
 
