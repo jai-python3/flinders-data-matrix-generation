@@ -7,13 +7,12 @@ import os
 import pathlib
 import sys
 import time
-from dotenv import load_dotenv
-
 from datetime import datetime
 from typing import Any, Dict, List, Union
 
 import click
 from colorama import Fore, Style
+from dotenv import load_dotenv
 from openpyxl import load_workbook
 
 load_dotenv()
