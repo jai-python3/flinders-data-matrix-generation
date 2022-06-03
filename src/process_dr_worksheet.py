@@ -82,6 +82,11 @@ DR_WORKSHEET_NAME = "DR"
 
 DATASET_NAME = "Flinders_dataset_batch_2"
 
+""" If the following is set to True, we will override
+the Control/Case value that was assigned by the collaborator. """
+OVERRIDE_CONTROL_CASE = True
+
+
 start_time = time.perf_counter()
 
 MATRIX_YES_VALUE = "2"  # case
@@ -591,6 +596,11 @@ def process_amd_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
         if row_ctr == 1:
             continue  # Skip the header row
 
+        retinopathy_od = None
+        retinopathy_os = None
+        macular_edema_od = None
+        macular_edema_os = None
+
         # process this non-header row
         current_sample_id = None
 
@@ -736,6 +746,18 @@ def process_amd_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                         out_column_name
                     ] = MATRIX_NA_VALUE
 
+            elif column_name == "Retinopathy_OD":
+                retinopathy_od = str(cell_value.strip())
+
+            elif column_name == "Retinopathy_OS":
+                retinopathy_os = str(cell_value.strip())
+
+            elif column_name == "Macular Edema_OD":
+                macular_edema_od = str(cell_value.strip())
+
+            elif column_name == "Macular Edema_OS":
+                macular_edema_os = str(cell_value.strip())
+
             elif column_name == "Retinopathy_OD" or column_name == "Retinopathy_OS":
 
                 cell_value = cell_value.strip()  # Remove surrounding whitespace
@@ -779,6 +801,62 @@ def process_amd_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                         binary_id_lookup[current_sample_id][
                             out_column_name
                         ] = MATRIX_NA_VALUE
+
+            elif column_name == "Control/Case":
+
+                out_column_name = column_name.lower().replace("/", "_")
+
+                case_control = None
+
+                if OVERRIDE_CONTROL_CASE:
+                    # We will override their control/case designation using our own rules
+                    if (
+                        retinopathy_od == "No DR"
+                        and retinopathy_os == "No DR"
+                        and macular_edema_od == "No"
+                        and macular_edema_os == "No"
+                    ):
+                        case_control = MATRIX_CONTROL_VALUE
+                    elif (
+                        retinopathy_od is None
+                        or retinopathy_od == "Unknown"
+                        or retinopathy_od == ""
+                        or retinopathy_os is None
+                        or retinopathy_os == "Unknown"
+                        or retinopathy_os == ""
+                        or macular_edema_od is None
+                        or macular_edema_od == "Unknown"
+                        or macular_edema_od == ""
+                        or macular_edema_os is None
+                        or macular_edema_os == "Unknown"
+                        or macular_edema_os == ""
+                    ):
+                        case_control = MATRIX_NA_VALUE
+                    else:
+                        case_control = MATRIX_CASE_VALUE
+                else:
+                    if cell_value == "0":
+                        case_control = MATRIX_CONTROL_VALUE
+                    elif cell_value == "1":
+                        case_control = MATRIX_CASE_VALUE
+                    elif cell_value == "9":
+                        case_control = MATRIX_NA_VALUE
+                    else:
+                        # blank?
+                        if (
+                            column_name in CONFIG["blank_value_allowed"][sheet_name]
+                            and CONFIG["blank_value_allowed"][sheet_name][column_name]
+                            is True
+                        ):
+                            case_control = MATRIX_NA_VALUE
+                        else:
+                            msg = f"Found unexpected value for column '{column_name}' at row '{row_ctr}' in worksheet '{sheet_name}'"
+                            print_red(msg)
+                            logger.fatal(msg)
+                            sys.exit(1)
+
+                binary_id_lookup[current_sample_id][out_column_name] = case_control
+
             else:
                 print_red(f"Encountered unexpected column name '{column_name}'")
 
