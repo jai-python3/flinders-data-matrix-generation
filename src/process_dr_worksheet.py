@@ -700,7 +700,10 @@ def process_amd_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                         and cell_value != ""
                         and cell_value.lower() != "na"
                         and cell_value.lower() != "unknown"
-                        and disease_type.lower() == cell_value.lower()
+                        and disease_type.lower()
+                        == cell_value.lower().replace(
+                            " ", ""
+                        )  #  Remove all whitespace from the cell value this will merge values like 'Type 1' and 'Type1'
                     ):
                         binary_id_lookup[current_sample_id][
                             out_column_name
