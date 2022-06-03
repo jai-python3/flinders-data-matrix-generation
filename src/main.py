@@ -7,13 +7,12 @@ import os
 import pathlib
 import sys
 import time
-from dotenv import load_dotenv
-
 from datetime import datetime
 from typing import Any, Dict, List, Union
 
 import click
 from colorama import Fore, Style
+from dotenv import load_dotenv
 from openpyxl import load_workbook
 
 load_dotenv()
@@ -45,6 +44,8 @@ OVERRIDE_CONTROL_CASE = True
 
 DEFAULT_OUTDIR = os.path.join(
     "/tmp/",
+    "matrix-generation",
+    "flinders",
     os.path.basename(__file__),
     str(datetime.today().strftime("%Y-%m-%d-%H%M%S")),
 )
