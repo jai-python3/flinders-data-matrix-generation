@@ -568,7 +568,7 @@ def process_header_row(
 
 
 def process_amd_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
-    """Process the AMD worksheet.
+    """Process the DR worksheet.
 
     Args:
         sheet_name: (str) the name of the worksheet
