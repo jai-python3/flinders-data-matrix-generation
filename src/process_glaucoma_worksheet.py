@@ -800,10 +800,15 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                 or column_name == "Highest IOP"
             ):
 
+                out_column_name = column_name.lower().replace(" ", "_")
+
                 if type(cell_value) == str:
                     cell_value = cell_value.strip()  # Remove surrounding whitespace
-
-                out_column_name = column_name.lower().replace(" ", "_")
+                    if cell_value.lower() == "x":
+                        quantitative_id_lookup[current_sample_id][
+                            out_column_name
+                        ] = MATRIX_NA_VALUE
+                        continue
 
                 if (
                     cell_value is not None
