@@ -612,6 +612,11 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
         # process this non-header row
         current_sample_id = None
 
+        # Need to retain value of Highest IOP_RE and IOP_LE
+        # so that can calculate the mean
+        highest_iop_re = None
+        highest_iop_le = None
+
         for cell in row:
 
             cell_value = cell.value
@@ -819,7 +824,32 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                     quantitative_id_lookup[current_sample_id][
                         out_column_name
                     ] = cell_value
+
+                    if column_name == "Highest IOP_RE":
+                        highest_iop_re = cell_value
+                        logger.info(
+                            f"Found highest_iop_re '{highest_iop_re}' for sample_id '{current_sample_id}'"
+                        )
+                    elif column_name == "Highest IOP_LE":
+                        highest_iop_le = cell_value
+                        logger.info(
+                            f"Found highest_iop_le '{highest_iop_le}' for sample_id '{current_sample_id}'"
+                        )
+                    elif column_name == "Highest IOP":
+                        derive_highest_iop_mean(
+                            highest_iop_re,
+                            highest_iop_le,
+                            current_sample_id,
+                            quantitative_id_lookup,
+                        )
+
                 else:
+                    derive_highest_iop_mean(
+                        highest_iop_re,
+                        highest_iop_le,
+                        current_sample_id,
+                        quantitative_id_lookup,
+                    )
                     quantitative_id_lookup[current_sample_id][
                         out_column_name
                     ] = MATRIX_NA_VALUE
@@ -910,6 +940,34 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
     )
 
     logger.info(f"Processed '{row_ctr}' rows in worksheet '{sheet_name}'")
+
+
+def derive_highest_iop_mean(
+    highest_iop_re, highest_iop_le, current_sample_id, quantitative_id_lookup
+):
+    """Derive the Highest IOP mean.
+
+    Args:
+        highest_iop_re (int): Highest IOP_RE
+        highest_iop_le (int): Highest IOP_LE
+        current_sample_id (str): The current sample identifier
+        quantitative_id_lookup (dict): The quantitative id lookup
+
+    Returns:
+        None
+    """
+    if highest_iop_le is not None and highest_iop_re is not None:
+        avg = (float(highest_iop_le) + float(highest_iop_re)) / 2
+        logger.info(
+            f"Calculated highest_iop_mean for sample_id '{current_sample_id}': '{avg}'"
+        )
+        quantitative_id_lookup[current_sample_id]["highest_iop_mean"] = avg
+    else:
+        quantitative_id_lookup[current_sample_id]["highest_iop_mean"] = MATRIX_NA_VALUE
+
+        logger.info(
+            f"Unable to calculate highest_iop_mean because highest_iop_le is '{highest_iop_le}' and highest_iop_re is '{highest_iop_re}' for sample_id '{current_sample_id}'"
+        )
 
 
 def generate_binary_matrix(
