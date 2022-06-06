@@ -617,6 +617,9 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
         highest_iop_re = None
         highest_iop_le = None
 
+        vcdr_re = None
+        vcdr_le = None
+
         for cell in row:
 
             cell_value = cell.value
@@ -886,6 +889,35 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
 
             elif column_name == "VCDR_RE" or column_name == "VCDR_LE":
 
+                if column_name == "VCDR_RE":
+                    if (
+                        cell_value is not None
+                        and cell_value != ""
+                        and cell_value != "x"
+                        and cell_value != "X"
+                    ):
+                        if type(cell_value) == str and "-" in cell_value:
+                            vcdr_re = get_mean(cell_value)
+                        else:
+                            vcdr_re = cell_value
+                            logger.info(
+                                f"Found vcdr_re '{vcdr_re}' for sample_id '{current_sample_id}'"
+                            )
+                elif column_name == "VCDR_LE":
+                    if (
+                        cell_value is not None
+                        and cell_value != ""
+                        and cell_value != "x"
+                        and cell_value != "X"
+                    ):
+                        if type(cell_value) == str and "-" in cell_value:
+                            vcdr_re = get_mean(cell_value)
+                        else:
+                            vcdr_le = cell_value
+                            logger.info(
+                                f"Found vcdr_le '{vcdr_le}' for sample_id '{current_sample_id}'"
+                            )
+
                 if type(cell_value) == str:
                     cell_value = cell_value.strip()  # Remove surrounding whitespace
 
@@ -906,6 +938,10 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                     ] = MATRIX_NA_VALUE
 
             elif column_name == "Highest.VCDR":
+
+                derive_vcdr_mean(
+                    vcdr_re, vcdr_le, current_sample_id, quantitative_id_lookup
+                )
 
                 if type(cell_value) == str:
                     cell_value = cell_value.strip()  # Remove surrounding whitespace
@@ -944,6 +980,38 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
     )
 
     logger.info(f"Processed '{row_ctr}' rows in worksheet '{sheet_name}'")
+
+
+def get_mean(val: str) -> float:
+    x, y = val.split("-")
+    mean = (float(x) + float(y)) / 2
+    return mean
+
+
+def derive_vcdr_mean(vcdr_re, vcdr_le, current_sample_id, quantitative_id_lookup):
+    """Derive the VCDR mean.
+
+    Args:
+        vcdr_re (int): VCDR_RE
+        vcdr_le (int): VCDR_LE
+        current_sample_id (str): The current sample identifier
+        quantitative_id_lookup (dict): The quantitative id lookup
+
+    Returns:
+        None
+    """
+    if vcdr_le is not None and vcdr_re is not None:
+        avg = (float(vcdr_le) + float(vcdr_re)) / 2
+        logger.info(
+            f"Calculated VCDR mean for sample_id '{current_sample_id}': '{avg}'"
+        )
+        quantitative_id_lookup[current_sample_id]["vcdr_mean"] = avg
+    else:
+        quantitative_id_lookup[current_sample_id]["vcdr_mean"] = MATRIX_NA_VALUE
+
+        logger.info(
+            f"Unable to calculate VCDR mean because vcdr_le is '{vcdr_le}' and vcdr_re is '{vcdr_re}' for sample_id '{current_sample_id}'"
+        )
 
 
 def derive_highest_iop_mean(
