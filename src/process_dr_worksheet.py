@@ -749,19 +749,12 @@ def process_amd_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                         out_column_name
                     ] = MATRIX_NA_VALUE
 
-            elif column_name == "Retinopathy_OD":
-                retinopathy_od = str(cell_value.strip())
-
-            elif column_name == "Retinopathy_OS":
-                retinopathy_os = str(cell_value.strip())
-
-            elif column_name == "Macular Edema_OD":
-                macular_edema_od = str(cell_value.strip())
-
-            elif column_name == "Macular Edema_OS":
-                macular_edema_os = str(cell_value.strip())
-
             elif column_name == "Retinopathy_OD" or column_name == "Retinopathy_OS":
+
+                if column_name == "Retinopathy_OD":
+                    retinopathy_od = str(cell_value.strip())
+                elif column_name == "Retinopathy_OS":
+                    retinopathy_os = str(cell_value.strip())
 
                 cell_value = cell_value.strip()  # Remove surrounding whitespace
 
@@ -784,6 +777,11 @@ def process_amd_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                         ] = MATRIX_NA_VALUE
 
             elif column_name == "Macular Edema_OD" or column_name == "Macular Edema_OS":
+
+                if column_name == "Macular Edema_OD":
+                    macular_edema_od = str(cell_value.strip())
+                elif column_name == "Macular Edema_OS":
+                    macular_edema_os = str(cell_value.strip())
 
                 cell_value = cell_value.strip()  # Remove surrounding whitespace
 
