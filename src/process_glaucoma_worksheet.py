@@ -739,7 +739,7 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                     else:
                         binary_id_lookup[current_sample_id][
                             out_column_name
-                        ] = MATRIX_NA_VALUE
+                        ] = MATRIX_CONTROL_VALUE
 
             elif column_name == "Family History":
 
@@ -897,9 +897,11 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                     # and cell_value.lower() != "na"
                     # and cell_value.lower() != "unknown"
                 ):
-                    binary_id_lookup[current_sample_id][out_column_name] = cell_value
+                    quantitative_id_lookup[current_sample_id][
+                        out_column_name
+                    ] = cell_value
                 else:
-                    binary_id_lookup[current_sample_id][
+                    quantitative_id_lookup[current_sample_id][
                         out_column_name
                     ] = MATRIX_NA_VALUE
 
@@ -916,9 +918,11 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                     # and cell_value.lower() != "na"
                     # and cell_value.lower() != "unknown"
                 ):
-                    binary_id_lookup[current_sample_id][out_column_name] = cell_value
+                    quantitative_id_lookup[current_sample_id][
+                        out_column_name
+                    ] = cell_value
                 else:
-                    binary_id_lookup[current_sample_id][
+                    quantitative_id_lookup[current_sample_id][
                         out_column_name
                     ] = MATRIX_NA_VALUE
 
