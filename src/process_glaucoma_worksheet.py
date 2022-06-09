@@ -243,8 +243,6 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
             column_name = column_letter_to_column_name_lookup[column_letter]
             column_name = column_name.strip()  # remove all surrounding whitespace
 
-            logger.info(f"Column name '{column_name}' sample_id '{current_sample_id}'")
-
             if column_name is None:
                 logger.error(
                     f"Encountered column with no name at column letter '{column_letter}' in row '{row_ctr}' in worksheet '{sheet_name}'"
@@ -269,8 +267,6 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                     )
                     break
 
-                if current_sample_id == "IST-01427":
-                    print(f"======================> {current_sample_id}")
                 # Initialize the binary lookup for the current sample_id
                 if current_sample_id not in binary_id_lookup:
                     binary_id_lookup[current_sample_id] = {}
@@ -336,16 +332,7 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
 
             elif column_name == "Glaucoma.diagnosis":
 
-                if current_sample_id == "IST-01427":
-                    logger.info(
-                        f"J1: Found '{cell_value}' for sample_id '{current_sample_id}'"
-                    )
-
                 if cell_value.strip() == "Unaffected":
-
-                    logger.info(
-                        f"J2: Found '{cell_value}' for sample_id '{current_sample_id}'"
-                    )
 
                     for diagnosis in FINAL_EXPECTED_GLAUCOMA_DIAGNOSIS_VALUES:
 
@@ -353,9 +340,6 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                         binary_id_lookup[current_sample_id][
                             out_column_name
                         ] = MATRIX_CONTROL_VALUE
-
-                    # print(f"J3: {binary_id_lookup[current_sample_id]}")
-                    # sys.exit(1)
 
                 else:
                     for diagnosis in EXPECTED_GLAUCOMA_DIAGNOSIS_VALUES:
@@ -733,8 +717,6 @@ def generate_binary_matrix(
     Raises:
         None
     """
-    logger.info(f"J4: for IST-01427: {binary_id_lookup['IST-01427']}")
-    # sys.exit(1)
 
     with open(outfile, "w") as of:
         header_list = []
@@ -784,9 +766,6 @@ def generate_binary_matrix(
                 if column_name == "ID":
                     continue
                 if column_name not in binary_id_lookup[sample_id]:
-                    logger.info(
-                        f"J5: column_name '{column_name}' sample_id '{sample_id}'"
-                    )
 
                     if (
                         column_name.lower() == "glaucoma_diagnosis_poag_strict"
