@@ -65,7 +65,21 @@ EXPECTED_GLAUCOMA_DIAGNOSIS_VALUES = (
     "POAG, PCG",
     "POAG_suspect",
     "PXF",
-    "Unaffected",
+    # "Unaffected",
+)
+
+FINAL_EXPECTED_GLAUCOMA_DIAGNOSIS_VALUES = (
+    "ASD",
+    "GS",
+    "LHON",
+    "ODD",
+    "PACG",
+    "PACG, PXF",
+    "PCG",
+    "PDS",
+    "POAG_strict",  # This includes "POAG" and "POAG, PCG"
+    "POAG_loose",  # This is for "POAG_suspect"
+    "PXF",
 )
 
 EXPECTED_FAMILY_HISTORY_VALUES = (
@@ -634,6 +648,8 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
             column_name = column_letter_to_column_name_lookup[column_letter]
             column_name = column_name.strip()  # remove all surrounding whitespace
 
+            logger.info(f"Column name '{column_name}' sample_id '{current_sample_id}'")
+
             if column_name is None:
                 logger.error(
                     f"Encountered column with no name at column letter '{column_letter}' in row '{row_ctr}' in worksheet '{sheet_name}'"
@@ -658,6 +674,8 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                     )
                     break
 
+                if current_sample_id == "IST-01427":
+                    print(f"======================> {current_sample_id}")
                 # Initialize the binary lookup for the current sample_id
                 if current_sample_id not in binary_id_lookup:
                     binary_id_lookup[current_sample_id] = {}
@@ -723,60 +741,85 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
 
             elif column_name == "Glaucoma.diagnosis":
 
-                for diagnosis in EXPECTED_GLAUCOMA_DIAGNOSIS_VALUES:
+                if current_sample_id == "IST-01427":
+                    logger.info(
+                        f"J1: Found '{cell_value}' for sample_id '{current_sample_id}'"
+                    )
 
-                    out_column_name = None
-                    final_value = None
+                if cell_value.strip() == "Unaffected":
 
-                    if diagnosis == "POAG" or diagnosis == "POAG, PCG":
-                        out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_POAG_strict"
+                    logger.info(
+                        f"J2: Found '{cell_value}' for sample_id '{current_sample_id}'"
+                    )
 
-                        if (
-                            cell_value is not None
-                            and cell_value != ""
-                            and cell_value.lower() != "na"
-                            and cell_value.lower() != "unknown"
-                            and (cell_value == "POAG" or cell_value == "POAG, PCG")
-                        ):
-                            final_value = MATRIX_CASE_VALUE
+                    for diagnosis in FINAL_EXPECTED_GLAUCOMA_DIAGNOSIS_VALUES:
+
+                        out_column_name = f"glaucoma_diagnosis_{diagnosis.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}"
+                        binary_id_lookup[current_sample_id][
+                            out_column_name
+                        ] = MATRIX_CONTROL_VALUE
+
+                    # print(f"J3: {binary_id_lookup[current_sample_id]}")
+                    # sys.exit(1)
+
+                else:
+                    for diagnosis in EXPECTED_GLAUCOMA_DIAGNOSIS_VALUES:
+
+                        out_column_name = None
+                        final_value = None
+
+                        if diagnosis == "POAG" or diagnosis == "POAG, PCG":
+                            out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_POAG_strict"
+
+                            if (
+                                cell_value is not None
+                                and cell_value != ""
+                                and cell_value.lower() != "na"
+                                and cell_value.lower() != "unknown"
+                                and (cell_value == "POAG" or cell_value == "POAG, PCG")
+                            ):
+                                final_value = MATRIX_CASE_VALUE
+                            else:
+                                final_value = MATRIX_CONTROL_VALUE
+
+                        elif diagnosis == "POAG_suspect":
+                            out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_POAG_loose"
+                            if (
+                                cell_value is not None
+                                and cell_value != ""
+                                and cell_value.lower() != "na"
+                                and cell_value.lower() != "unknown"
+                                and cell_value == "POAG_suspect"
+                            ):
+                                final_value = MATRIX_CASE_VALUE
+                            else:
+                                final_value = MATRIX_CONTROL_VALUE
+
                         else:
-                            final_value = MATRIX_CONTROL_VALUE
 
-                    elif diagnosis == "POAG_suspect":
-                        out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_POAG_loose"
-                        if (
-                            cell_value is not None
-                            and cell_value != ""
-                            and cell_value.lower() != "na"
-                            and cell_value.lower() != "unknown"
-                            and cell_value == "POAG_suspect"
-                        ):
-                            final_value = MATRIX_CASE_VALUE
-                        else:
-                            final_value = MATRIX_CONTROL_VALUE
-                    else:
+                            cell_value = (
+                                cell_value.replace(".", "_")
+                                .replace(" ", "_")
+                                .replace(",", "_")
+                            )
 
-                        cell_value = (
-                            cell_value.replace(".", "_")
-                            .replace(" ", "_")
-                            .replace(",", "_")
-                        )
+                            out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_{diagnosis.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}"
 
-                        out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_{diagnosis.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}"
+                            if (
+                                cell_value is not None
+                                and cell_value != ""
+                                and cell_value.lower() != "na"
+                                and cell_value.lower() != "unknown"
+                                and diagnosis.lower() == cell_value.lower()
+                            ):
 
-                        if (
-                            cell_value is not None
-                            and cell_value != ""
-                            and cell_value.lower() != "na"
-                            and cell_value.lower() != "unknown"
-                            and diagnosis.lower() == cell_value.lower()
-                        ):
+                                final_value = MATRIX_CASE_VALUE
+                            else:
+                                final_value = MATRIX_CONTROL_VALUE
 
-                            final_value = MATRIX_CASE_VALUE
-                        else:
-                            final_value = MATRIX_CONTROL_VALUE
-
-                    binary_id_lookup[current_sample_id][out_column_name] = final_value
+                        binary_id_lookup[current_sample_id][
+                            out_column_name
+                        ] = final_value
 
             elif column_name == "Family History":
 
@@ -1095,6 +1138,9 @@ def generate_binary_matrix(
     Raises:
         None
     """
+    logger.info(f"J4: for IST-01427: {binary_id_lookup['IST-01427']}")
+    # sys.exit(1)
+
     with open(outfile, "w") as of:
         header_list = []
         header_list.append("ID")
@@ -1143,7 +1189,19 @@ def generate_binary_matrix(
                 if column_name == "ID":
                     continue
                 if column_name not in binary_id_lookup[sample_id]:
-                    output_list.append(str(MATRIX_NA_VALUE))
+                    logger.info(
+                        f"J5: column_name '{column_name}' sample_id '{sample_id}'"
+                    )
+
+                    if (
+                        column_name.lower() == "glaucoma_diagnosis_poag_strict"
+                        or column_name.lower() == "glaucoma_diagnosis_poag_loose"
+                    ):
+                        output_list.append(
+                            str(binary_id_lookup[sample_id][column_name.lower()])
+                        )
+                    else:
+                        output_list.append(str(MATRIX_NA_VALUE))
                 else:
                     output_list.append(str(binary_id_lookup[sample_id][column_name]))
 
