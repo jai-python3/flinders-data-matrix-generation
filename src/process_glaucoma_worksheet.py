@@ -724,6 +724,10 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
             elif column_name == "Glaucoma.diagnosis":
 
                 for diagnosis in EXPECTED_GLAUCOMA_DIAGNOSIS_VALUES:
+
+                    out_column_name = None
+                    final_value = None
+
                     if diagnosis == "POAG" or diagnosis == "POAG, PCG":
                         out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_POAG_strict"
 
@@ -734,13 +738,9 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                             and cell_value.lower() != "unknown"
                             and (cell_value == "POAG" or cell_value == "POAG, PCG")
                         ):
-                            binary_id_lookup[current_sample_id][
-                                out_column_name
-                            ] = MATRIX_CASE_VALUE
+                            final_value = MATRIX_CASE_VALUE
                         else:
-                            binary_id_lookup[current_sample_id][
-                                out_column_name
-                            ] = MATRIX_CONTROL_VALUE
+                            final_value = MATRIX_CONTROL_VALUE
 
                     elif diagnosis == "POAG_suspect":
                         out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_POAG_loose"
@@ -751,13 +751,9 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                             and cell_value.lower() != "unknown"
                             and cell_value == "POAG_suspect"
                         ):
-                            binary_id_lookup[current_sample_id][
-                                out_column_name
-                            ] = MATRIX_CASE_VALUE
+                            final_value = MATRIX_CASE_VALUE
                         else:
-                            binary_id_lookup[current_sample_id][
-                                out_column_name
-                            ] = MATRIX_CONTROL_VALUE
+                            final_value = MATRIX_CONTROL_VALUE
                     else:
 
                         cell_value = (
@@ -775,13 +771,12 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                             and cell_value.lower() != "unknown"
                             and diagnosis.lower() == cell_value.lower()
                         ):
-                            binary_id_lookup[current_sample_id][
-                                out_column_name
-                            ] = MATRIX_CASE_VALUE
+
+                            final_value = MATRIX_CASE_VALUE
                         else:
-                            binary_id_lookup[current_sample_id][
-                                out_column_name
-                            ] = MATRIX_CONTROL_VALUE
+                            final_value = MATRIX_CONTROL_VALUE
+
+                    binary_id_lookup[current_sample_id][out_column_name] = final_value
 
             elif column_name == "Family History":
 
