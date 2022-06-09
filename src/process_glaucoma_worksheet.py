@@ -74,7 +74,7 @@ FINAL_EXPECTED_GLAUCOMA_DIAGNOSIS_VALUES = (
     "LHON",
     "ODD",
     "PACG",
-    "PACG, PXF",
+    # "PACG, PXF",
     "PCG",
     "PDS",
     "POAG_strict",  # This includes "POAG" and "POAG, PCG"
@@ -334,71 +334,243 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
 
                 if cell_value.strip() == "Unaffected":
 
-                    for diagnosis in FINAL_EXPECTED_GLAUCOMA_DIAGNOSIS_VALUES:
+                    # For all other Glaucoma_diagnosis output columns, set control (1)
+                    set_all_glaucoma_diagnosis_columns(
+                        column_name,
+                        binary_id_lookup,
+                        current_sample_id,
+                        MATRIX_CONTROL_VALUE,
+                    )
 
-                        out_column_name = f"glaucoma_diagnosis_{diagnosis.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}"
+                    # for diagnosis in FINAL_EXPECTED_GLAUCOMA_DIAGNOSIS_VALUES:
+
+                    #     out_column_name = f"glaucoma_diagnosis_{diagnosis.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}"
+                    #     binary_id_lookup[current_sample_id][
+                    #         out_column_name
+                    #     ] = MATRIX_CONTROL_VALUE
+
+                elif cell_value.strip() == "PACG, PXF":
+
+                    # For all other Glaucoma_diagnosis output columns, set NA
+                    set_all_glaucoma_diagnosis_columns(
+                        column_name,
+                        binary_id_lookup,
+                        current_sample_id,
+                        MATRIX_NA_VALUE,
+                    )
+
+                    out_column_name_pacg = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_pacg"
+                    out_column_name_pxf = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_pxf"
+
+                    if (
+                        cell_value is not None
+                        and cell_value != ""
+                        and cell_value.lower() != "na"
+                        and cell_value.lower() != "unknown"
+                    ):
+
+                        binary_id_lookup[current_sample_id][
+                            out_column_name_pacg
+                        ] = MATRIX_CASE_VALUE
+
+                        binary_id_lookup[current_sample_id][
+                            out_column_name_pxf
+                        ] = MATRIX_CASE_VALUE
+                    else:
+
+                        binary_id_lookup[current_sample_id][
+                            out_column_name_pacg
+                        ] = MATRIX_CONTROL_VALUE
+
+                        binary_id_lookup[current_sample_id][
+                            out_column_name_pxf
+                        ] = MATRIX_CONTROL_VALUE
+
+                elif cell_value.strip() == "POAG" or cell_value.strip() == "POAG, PCG":
+
+                    # For all other Glaucoma_diagnosis output columns, set NA
+                    set_all_glaucoma_diagnosis_columns(
+                        column_name,
+                        binary_id_lookup,
+                        current_sample_id,
+                        MATRIX_NA_VALUE,
+                    )
+
+                    out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_POAG_strict"
+
+                    if (
+                        cell_value is not None
+                        and cell_value != ""
+                        and cell_value.lower() != "na"
+                        and cell_value.lower() != "unknown"
+                    ):
+                        binary_id_lookup[current_sample_id][
+                            out_column_name
+                        ] = MATRIX_CASE_VALUE
+                    else:
+                        binary_id_lookup[current_sample_id][
+                            out_column_name
+                        ] = MATRIX_CONTROL_VALUE
+
+                elif cell_value.strip() == "POAG_suspect":
+
+                    # For all other Glaucoma_diagnosis output columns, set NA
+                    set_all_glaucoma_diagnosis_columns(
+                        column_name,
+                        binary_id_lookup,
+                        current_sample_id,
+                        MATRIX_NA_VALUE,
+                    )
+
+                    out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_POAG_loose"
+
+                    if (
+                        cell_value is not None
+                        and cell_value != ""
+                        and cell_value.lower() != "na"
+                        and cell_value.lower() != "unknown"
+                    ):
+                        binary_id_lookup[current_sample_id][
+                            out_column_name
+                        ] = MATRIX_CASE_VALUE
+                    else:
                         binary_id_lookup[current_sample_id][
                             out_column_name
                         ] = MATRIX_CONTROL_VALUE
 
                 else:
-                    for diagnosis in EXPECTED_GLAUCOMA_DIAGNOSIS_VALUES:
 
-                        out_column_name = None
-                        final_value = None
+                    # For all other Glaucoma_diagnosis output columns, set NA
+                    set_all_glaucoma_diagnosis_columns(
+                        column_name,
+                        binary_id_lookup,
+                        current_sample_id,
+                        MATRIX_NA_VALUE,
+                    )
 
-                        if diagnosis == "POAG" or diagnosis == "POAG, PCG":
-                            out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_POAG_strict"
+                    cell_value = (
+                        cell_value.replace(".", "_").replace(" ", "_").replace(",", "_")
+                    )
 
-                            if (
-                                cell_value is not None
-                                and cell_value != ""
-                                and cell_value.lower() != "na"
-                                and cell_value.lower() != "unknown"
-                                and (cell_value == "POAG" or cell_value == "POAG, PCG")
-                            ):
-                                final_value = MATRIX_CASE_VALUE
-                            else:
-                                final_value = MATRIX_CONTROL_VALUE
+                    out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_{cell_value.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}"
 
-                        elif diagnosis == "POAG_suspect":
-                            out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_POAG_loose"
-                            if (
-                                cell_value is not None
-                                and cell_value != ""
-                                and cell_value.lower() != "na"
-                                and cell_value.lower() != "unknown"
-                                and cell_value == "POAG_suspect"
-                            ):
-                                final_value = MATRIX_CASE_VALUE
-                            else:
-                                final_value = MATRIX_CONTROL_VALUE
-
-                        else:
-
-                            cell_value = (
-                                cell_value.replace(".", "_")
-                                .replace(" ", "_")
-                                .replace(",", "_")
-                            )
-
-                            out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_{diagnosis.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}"
-
-                            if (
-                                cell_value is not None
-                                and cell_value != ""
-                                and cell_value.lower() != "na"
-                                and cell_value.lower() != "unknown"
-                                and diagnosis.lower() == cell_value.lower()
-                            ):
-
-                                final_value = MATRIX_CASE_VALUE
-                            else:
-                                final_value = MATRIX_CONTROL_VALUE
+                    if (
+                        cell_value is not None
+                        and cell_value != ""
+                        and cell_value.lower() != "na"
+                        and cell_value.lower() != "unknown"
+                    ):
 
                         binary_id_lookup[current_sample_id][
                             out_column_name
-                        ] = final_value
+                        ] = MATRIX_CASE_VALUE
+                    else:
+                        binary_id_lookup[current_sample_id][
+                            out_column_name
+                        ] = MATRIX_CONTROL_VALUE
+
+                # else:
+                #     for diagnosis in EXPECTED_GLAUCOMA_DIAGNOSIS_VALUES:
+
+                #         out_column_name = None
+                #         final_value = None
+                #         diagnosis_assigned = False
+
+                #         if (
+                #             # diagnosis == "PXF"
+                #             diagnosis
+                #             == "PACG, PXF"
+                #             # or diagnosis == "PACG"
+                #         ):
+
+                #             out_column_name_pacg = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_pacg"
+                #             out_column_name_pxf = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_pxf"
+
+                #             if (
+                #                 cell_value is not None
+                #                 and cell_value != ""
+                #                 and cell_value.lower() != "na"
+                #                 and cell_value.lower() != "unknown"
+                #                 and cell_value == "PACG, PXF"
+                #                 # and (
+                #                 #     cell_value == "PXF"
+                #                 #     or cell_value == "PACG, PXF"
+                #                 #     or cell_value == "PACG"
+                #                 # )
+                #             ):
+
+                #                 binary_id_lookup[current_sample_id][
+                #                     out_column_name_pacg
+                #                 ] = MATRIX_CASE_VALUE
+
+                #                 binary_id_lookup[current_sample_id][
+                #                     out_column_name_pxf
+                #                 ] = MATRIX_CASE_VALUE
+                #             else:
+
+                #                 binary_id_lookup[current_sample_id][
+                #                     out_column_name_pacg
+                #                 ] = MATRIX_CONTROL_VALUE
+
+                #                 binary_id_lookup[current_sample_id][
+                #                     out_column_name_pxf
+                #                 ] = MATRIX_CONTROL_VALUE
+
+                #             diagnosis_assigned = True
+
+                #         elif diagnosis == "POAG" or diagnosis == "POAG, PCG":
+                #             out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_POAG_strict"
+
+                #             if (
+                #                 cell_value is not None
+                #                 and cell_value != ""
+                #                 and cell_value.lower() != "na"
+                #                 and cell_value.lower() != "unknown"
+                #                 and (cell_value == "POAG" or cell_value == "POAG, PCG")
+                #             ):
+                #                 final_value = MATRIX_CASE_VALUE
+                #             else:
+                #                 final_value = MATRIX_CONTROL_VALUE
+
+                #         elif diagnosis == "POAG_suspect":
+                #             out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_POAG_loose"
+                #             if (
+                #                 cell_value is not None
+                #                 and cell_value != ""
+                #                 and cell_value.lower() != "na"
+                #                 and cell_value.lower() != "unknown"
+                #                 and cell_value == "POAG_suspect"
+                #             ):
+                #                 final_value = MATRIX_CASE_VALUE
+                #             else:
+                #                 final_value = MATRIX_CONTROL_VALUE
+
+                #         else:
+
+                #             cell_value = (
+                #                 cell_value.replace(".", "_")
+                #                 .replace(" ", "_")
+                #                 .replace(",", "_")
+                #             )
+
+                #             out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_{diagnosis.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}"
+
+                #             if (
+                #                 cell_value is not None
+                #                 and cell_value != ""
+                #                 and cell_value.lower() != "na"
+                #                 and cell_value.lower() != "unknown"
+                #                 and diagnosis.lower() == cell_value.lower()
+                #             ):
+
+                #                 final_value = MATRIX_CASE_VALUE
+                #             else:
+                #                 final_value = MATRIX_CONTROL_VALUE
+
+                #         if not diagnosis_assigned:
+                #             binary_id_lookup[current_sample_id][
+                #                 out_column_name
+                #             ] = final_value
 
             elif column_name == "Family History":
 
@@ -696,6 +868,30 @@ def derive_highest_iop_mean(
         logger.info(
             f"Unable to calculate highest_iop_mean because highest_iop_le is '{highest_iop_le}' and highest_iop_re is '{highest_iop_re}' for sample_id '{current_sample_id}'"
         )
+
+
+def set_all_glaucoma_diagnosis_columns(
+    column_name, binary_id_lookup, current_sample_id, final_value=MATRIX_NA_VALUE
+):
+    """Set all the output Glaucoma.diagnosis values to NA.
+
+    Args:
+        column_name (str) the column name
+        binary_id_lookup (dict) the binary lookup
+        current_sample_id (str) the current sample_id
+
+    Returns:
+        None
+    """
+    column_name = (
+        column_name.lower().replace(".", "_").replace(",", "_").replace(" ", "_")
+    )
+
+    for diagnosis in FINAL_EXPECTED_GLAUCOMA_DIAGNOSIS_VALUES:
+
+        out_column_name = f"{column_name}_{diagnosis.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}"
+
+        binary_id_lookup[current_sample_id][out_column_name] = final_value
 
 
 def generate_binary_matrix(
