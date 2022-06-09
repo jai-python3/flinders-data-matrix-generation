@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Script for processing the DR Excel Worksheet for the Flinders dataset batch 2."""
+"""Script for processing the DR Excel Worksheet for the Flinders dataset batch
+2."""
 import json
 import logging
 import logging.handlers
@@ -722,27 +723,74 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
 
             elif column_name == "Glaucoma.diagnosis":
 
-                cell_value = (
-                    cell_value.replace(".", "_").replace(" ", "_").replace(",", "_")
-                )
-
                 for diagnosis in EXPECTED_GLAUCOMA_DIAGNOSIS_VALUES:
-                    out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_{diagnosis.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}"
+                    if diagnosis == "POAG" or diagnosis == "POAG, PCG":
+                        out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_POAG_strict"
 
-                    if (
-                        cell_value is not None
-                        and cell_value != ""
-                        and cell_value.lower() != "na"
-                        and cell_value.lower() != "unknown"
-                        and diagnosis.lower() == cell_value.lower()
-                    ):
-                        binary_id_lookup[current_sample_id][
-                            out_column_name
-                        ] = MATRIX_CASE_VALUE
+                        if (
+                            cell_value is not None
+                            and cell_value != ""
+                            and cell_value.lower() != "na"
+                            and cell_value.lower() != "unknown"
+                            and (cell_value == "POAG" or cell_value == "POAG, PCG")
+                        ):
+                            binary_id_lookup[current_sample_id][
+                                out_column_name
+                            ] = MATRIX_CASE_VALUE
+                        else:
+                            binary_id_lookup[current_sample_id][
+                                out_column_name
+                            ] = MATRIX_CONTROL_VALUE
+
+                        # if cell_value == "POAG" or cell_value == "POAG, PCG":
+                        # binary_id_lookup[current_sample_id][
+                        #     out_column_name
+                        # ] = MATRIX_CASE_VALUE
+                    elif diagnosis == "POAG_suspect":
+                        # if cell_value == "POAG_suspect":
+                        out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_POAG_loose"
+                        if (
+                            cell_value is not None
+                            and cell_value != ""
+                            and cell_value.lower() != "na"
+                            and cell_value.lower() != "unknown"
+                            and cell_value == "POAG_suspect"
+                        ):
+                            binary_id_lookup[current_sample_id][
+                                out_column_name
+                            ] = MATRIX_CASE_VALUE
+                        else:
+                            binary_id_lookup[current_sample_id][
+                                out_column_name
+                            ] = MATRIX_CONTROL_VALUE
+                            # binary_id_lookup[current_sample_id][
+                            #     out_column_name
+                            # ] = MATRIX_CASE_VALUE
+
                     else:
-                        binary_id_lookup[current_sample_id][
-                            out_column_name
-                        ] = MATRIX_CONTROL_VALUE
+
+                        cell_value = (
+                            cell_value.replace(".", "_")
+                            .replace(" ", "_")
+                            .replace(",", "_")
+                        )
+
+                        out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_{diagnosis.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}"
+
+                        if (
+                            cell_value is not None
+                            and cell_value != ""
+                            and cell_value.lower() != "na"
+                            and cell_value.lower() != "unknown"
+                            and diagnosis.lower() == cell_value.lower()
+                        ):
+                            binary_id_lookup[current_sample_id][
+                                out_column_name
+                            ] = MATRIX_CASE_VALUE
+                        else:
+                            binary_id_lookup[current_sample_id][
+                                out_column_name
+                            ] = MATRIX_CONTROL_VALUE
 
             elif column_name == "Family History":
 
