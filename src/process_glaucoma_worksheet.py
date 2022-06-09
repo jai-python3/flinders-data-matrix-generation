@@ -690,30 +690,27 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                 if type(cell_value) == str:
                     cell_value = cell_value.strip()  # Remove surrounding whitespace
 
-                out_column_name = "high_tension_glaucoma"
+                htg_val = MATRIX_NA_VALUE
+                ntg_val = MATRIX_NA_VALUE
 
                 if (
                     cell_value is not None
                     and cell_value != ""
                     # and cell_value.lower() != "na"
-                    # and cell_value.lower() != "unknown"
                 ):
                     if cell_value == 1:  # High tension glaucoma
-                        binary_id_lookup[current_sample_id][
-                            out_column_name
-                        ] = MATRIX_CASE_VALUE
+                        htg_val = MATRIX_CASE_VALUE
+                        ntg_val = MATRIX_NA_VALUE
                     elif cell_value == 0:  # Normal tension glaucoma
-                        binary_id_lookup[current_sample_id][
-                            out_column_name
-                        ] = MATRIX_CONTROL_VALUE
+                        htg_val = MATRIX_NA_VALUE
+                        ntg_val = MATRIX_CASE_VALUE
                     elif cell_value == 9:  #  Not available or not recorded
-                        binary_id_lookup[current_sample_id][
-                            out_column_name
-                        ] = MATRIX_NA_VALUE
-                else:
-                    binary_id_lookup[current_sample_id][
-                        out_column_name
-                    ] = MATRIX_NA_VALUE
+                        htg_val = MATRIX_NA_VALUE
+                        ntg_val = MATRIX_NA_VALUE
+
+                binary_id_lookup[current_sample_id]["HTG"] = htg_val
+
+                binary_id_lookup[current_sample_id]["NTG"] = ntg_val
 
             elif column_name == "VCDR_RE" or column_name == "VCDR_LE":
 
