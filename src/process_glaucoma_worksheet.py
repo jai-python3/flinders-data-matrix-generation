@@ -742,12 +742,7 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                                 out_column_name
                             ] = MATRIX_CONTROL_VALUE
 
-                        # if cell_value == "POAG" or cell_value == "POAG, PCG":
-                        # binary_id_lookup[current_sample_id][
-                        #     out_column_name
-                        # ] = MATRIX_CASE_VALUE
                     elif diagnosis == "POAG_suspect":
-                        # if cell_value == "POAG_suspect":
                         out_column_name = f"{column_name.lower().replace('.', '_').replace(',', '_').replace(' ', '_')}_POAG_loose"
                         if (
                             cell_value is not None
@@ -763,10 +758,6 @@ def process_glaucoma_worksheet(sheet_name: str, worksheet, outdir: str) -> None:
                             binary_id_lookup[current_sample_id][
                                 out_column_name
                             ] = MATRIX_CONTROL_VALUE
-                            # binary_id_lookup[current_sample_id][
-                            #     out_column_name
-                            # ] = MATRIX_CASE_VALUE
-
                     else:
 
                         cell_value = (
